@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 # pip3 install lxml --break-system-packages
 from lxml import etree
 import pprint
+import glob
 
 # $(".comparePlan-tabs").click() to open everything
 
@@ -77,6 +78,8 @@ def parsePlan(htmlPath):
 	for key, value in fields.items():
 		fields[key] = value.strip().replace("$", "")
 
+	pprint.pprint(fields)
+
 	# parse it out a bit
 	finalFields = {}
 	for key, value in fields.items():
@@ -99,6 +102,9 @@ def parsePlan(htmlPath):
 					processed = float(raw.strip().replace("%", "")) / 100
 					finalFields[costName+"BeforeDeductible"] = "FULL CHARGE"
 					finalFields[costName+"AfterDeductible"] = "PARTIAL CHARGE: {}".format(processed)
+				if "No Charge after deductible" in value:
+					finalFields[costName+"BeforeDeductible"] = "FULL CHARGE"
+					finalFields[costName+"AfterDeductible"] = "0"
 
 	pprint.pprint(finalFields)
 
@@ -132,6 +138,7 @@ def parsePlan(htmlPath):
 
 	print(finalString)
 
-
+for file in glob.glob("plans/*.html"):
+	parsePlan(file)
 
 
