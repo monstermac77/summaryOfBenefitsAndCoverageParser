@@ -2,6 +2,7 @@
 from bs4 import BeautifulSoup
 # pip3 install lxml --break-system-packages
 from lxml import etree
+import pprint
 
 # $(".comparePlan-tabs").click() to open everything
 
@@ -21,8 +22,8 @@ link = "https://nystateofhealth.ny.gov" + soup.find("form", {"id" : "backToCompa
 # note: for some reason had to remove the tbody's in these for them to work, copied full xpath from Chrome
 metalLevel = root.xpath('/html/body/div/div[4]/div/div/div/form[1]/div[1]/table/tr[1]/td[2]')[0].text
 premium = root.xpath('/html/body/div/div[4]/div/div/div/form[1]/table[1]/tr[1]/td[2]/span')[0].text
-deductible = root.xpath('/html/body/div/div[4]/div/div/div/form[1]/table[1]/tr[3]/td[2]/span')[0].text.strip()
-outOfPocketMax = root.xpath('/html/body/div/div[4]/div/div/div/form[1]/table[1]/tr[4]/td[2]/span')[0].text.strip()
+deductible = root.xpath('/html/body/div/div[4]/div/div/div/form[1]/table[1]/tr[3]/td[2]/span')[0].text
+outOfPocketMax = root.xpath('/html/body/div/div[4]/div/div/div/form[1]/table[1]/tr[4]/td[2]/span')[0].text
 
 # complicated, tables
 target_div = root.xpath('//div[@class="subCol" and text()="Mental/Behavioral Health Outpatient Services"]')[0]
@@ -49,21 +50,52 @@ surgeryRaw = target_div.xpath('following::div[@class="subCol"][1]')[0].text
 target_div = root.xpath('//div[@class="subCol" and text()="Generic Drugs"]')[0]
 genericDrugsRaw = target_div.xpath('following::div[@class="subCol"][1]')[0].text
 
-columns = [
-	
-]
+fields = {
+	"carrier" : carrier,
+	"plan" : plan,
+	"link" : link,
+	"level" : metalLevel,
+	"premium" : premium,
+	"deductible" : deductible,
+	"outOfPocketMax"  : outOfPocketMax,
+	"therapyCostRaw" : therapyCostRaw,
+	"specialistCostRaw" : specialistCostRaw,
+	"primaryCareCostRaw" : primaryCareCostRaw,
+	"bloodDrawCostRaw" : bloodDrawRaw,
+	"psychiatristCostRaw" : psychiatristCostRaw,
+	"urgentCareCostRaw" : urgentCareRaw,
+	"surgeryCostRaw" : surgeryRaw
+}
 
-print(genericDrugsRaw)
-exit()
+# clean it up a bit
+for key, value in fields.items():
+	fields[key] = value.strip().replace("$", "")
+
+# parse it out a bit
+finalFields = {}
+for key, value in fields.items():
+	if "Raw" not in key:
+		# straightforward
+		finalFields[key] = value
+	else:
+		costName = key.replace("Raw", "")
+		# if it's a numberical value, then it's very straightforward 
+		if all([word not in value for word in ["Copay", "deductible"]]):
+			finalFields[costName+"BeforeDeductible"] = finalFields[costName+"AfterDeductible"] = value
+		else:
+			# there's some sort of difference
+			if "Copay after deductible" in value:
+				raw = value.replace("Copay after deductible", "")
+				finalFields[costName+"BeforeDeductible"] = "FULL CHARGE"
+				finalFields[costName+"AfterDeductible"] = raw
+
+pprint.pprint(finalFields)
+
+finalString = ""
+for column in ["carrier", "plan", "link", "level", "premium", "deductible", "outOfPocketMax", "therapyCostBeforeDeductible", "therapyCostAfterDeductible", "specialistCostBeforeDeductible", "specialistCostAfterDeductible", "primaryCareCostBeforeDeductible", "primaryCareCostAfterDeductible", "blooddrawCostBeforeDeductible", "blooddrawCostAfterDeductible", "psychiatristCostBeforeDeductible", "psychiatristCostAfterDeductible", "urgentCareCostBeforeDeductible", "urgentCareCostAfterDeductible", "surgeryCostBeforeDeductible", "surgeryCostAfterDeductible"]:
+	finalString += finalFields[column] + ", "
 
 
+print(finalString)
 
 
-elements = root.xpath('/html/body/div/div[4]/div/div/div/form[1]/table[1]/tr[1]/td[2]/span')
-for element in elements:
-    print(element.text)  # This should print 'Target Data'
-exit()
-metalLevel = soup.find("table", {"id" : "planDataTop"}).find("tr").findAll("td")[1].text
-print(metalLevel)
-
-# print(plan, carrier, link)
