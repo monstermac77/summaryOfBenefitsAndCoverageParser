@@ -4,10 +4,12 @@ from bs4 import BeautifulSoup
 from lxml import etree
 import pprint
 import glob
+import re
 
 # $(".comparePlan-tabs").click() to open everything
 
 # TODO: could improve the gathering of the HTML for sure, probably automate it, but the javascript loading of the page makes it hard
+# it returns you to the fucking first page every time you click on one, so it makes sense to basically open 41 tabs I guess and click on the right one and then save?
 
 def parsePlan(htmlPath):
 
@@ -19,8 +21,21 @@ def parsePlan(htmlPath):
 			return "Emblem Health"
 		elif "UnitedHealthcare.png" in html:
 			return "United Healthcare"
+		elif "anthem.com" in html:
+			return "Anthem"
 		return "Could not determine carrier"
 
+	def is_numerical(value):
+	    
+	    # remove dollar signs
+	    value = value.replace("$", "")
+	    
+	    # Check if the cleaned string is a valid numeric string
+	    try:
+	        float(value)
+	        return True
+	    except ValueError:
+	        return False
 
 	root = etree.HTML(html)
 	plan = root.xpath('/html/body/div/div[4]/div/div/div/form[1]/div[1]/div/div/h5')[0].text
@@ -78,7 +93,7 @@ def parsePlan(htmlPath):
 	for key, value in fields.items():
 		fields[key] = value.strip().replace("$", "")
 
-	pprint.pprint(fields)
+	#pprint.pprint(fields)
 
 	# parse it out a bit
 	finalFields = {}
@@ -89,7 +104,7 @@ def parsePlan(htmlPath):
 		else:
 			costName = key.replace("Raw", "")
 			# if it's a numberical value, then it's very straightforward 
-			if all([word not in value for word in ["Copay", "deductible"]]):
+			if is_numerical(value):
 				finalFields[costName+"BeforeDeductible"] = finalFields[costName+"AfterDeductible"] = value.strip()
 			else:
 				# there's some sort of difference
@@ -105,28 +120,35 @@ def parsePlan(htmlPath):
 				if "No Charge after deductible" in value:
 					finalFields[costName+"BeforeDeductible"] = "FULL CHARGE"
 					finalFields[costName+"AfterDeductible"] = "0"
+				if "No Charge" == value:
+					finalFields[costName+"BeforeDeductible"] = "0"
+					finalFields[costName+"AfterDeductible"] = "0"
 
-	pprint.pprint(finalFields)
+	#pprint.pprint(finalFields)
 
 	# for when there's a full charge
 	fieldsToColumnsMap = {
-		"therapyCost" : "C2",
-		"specialistCost" : "C3",
-		"primaryCareCost" : "C4",
-		"bloodDrawCost" : "C5",
-		"psychiatristCost" : "C6",
-		"urgentCareCost" : "C7",
-		"surgeryCost" : "C8"
+		"therapyCost" : "$C$2",
+		"specialistCost" : "$C$3",
+		"primaryCareCost" : "$C$4",
+		"bloodDrawCost" : "$C$5",
+		"psychiatristCost" : "$C$6",
+		"urgentCareCost" : "$C$7",
+		"surgeryCost" : "$C$8"
 	}
 
 	finalString = '"SHOP NYS Marketplace", '
 	for column in ["carrier", "plan", "link", "level", "premium", "deductible", "outOfPocketMax", "therapyCostBeforeDeductible", "therapyCostAfterDeductible", "specialistCostBeforeDeductible", "specialistCostAfterDeductible", "primaryCareCostBeforeDeductible", "primaryCareCostAfterDeductible", "bloodDrawCostBeforeDeductible", "bloodDrawCostAfterDeductible", "psychiatristCostBeforeDeductible", "psychiatristCostAfterDeductible", "urgentCareCostBeforeDeductible", "urgentCareCostAfterDeductible", "surgeryCostBeforeDeductible", "surgeryCostAfterDeductible"]:
 		value = finalFields[column]
+
 		chosenPair = None
 		for key, spreadsheetPair in fieldsToColumnsMap.items():
 			if column.startswith(key):
 				chosenPair = spreadsheetPair
 				break
+		#if column == "link":
+			# finalString += "=HYPERLINK(\"{}\")".format(value) + ", "
+		#	pass
 		if value == "FULL CHARGE": 
 			finalString += "=" + chosenPair + ", "
 		elif "PARTIAL CHARGE: " in value:
