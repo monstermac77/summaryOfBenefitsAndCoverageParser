@@ -4,7 +4,44 @@ import requests
 from bs4 import BeautifulSoup
 
 def getPlansFromSearch(soup):
-	pass
+	plans = soup.findAll("input", {"class" : "planSelect"})
+	ids = [plan['id'] for plan in plans]
+	return ids
+
+def getPlan(session, planID):
+
+	headers = {
+		'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+		'accept-language': 'en-US,en;q=0.9',
+		'cache-control': 'no-cache',
+		# 'cookie': 'compare_plans=; compare_counties=; compare_coverage_tiers=; compare_you_pay=; JSESSIONID=x8BxKm2q2o8v6B0oVZh6wRQKqsc10-890SfFx9ZI.1cahputr2; cookieEnabled=true; org.springframework.web.servlet.i18n.CookieLocaleResolver.LOCALE=en',
+		'pragma': 'no-cache',
+		'priority': 'u=0, i',
+		'referer': 'https://nystateofhealth.ny.gov/individual/searchAnonymousPlan/pagePlans',
+		'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+		'sec-ch-ua-mobile': '?0',
+		'sec-ch-ua-platform': '"macOS"',
+		'sec-fetch-dest': 'document',
+		'sec-fetch-mode': 'navigate',
+		'sec-fetch-site': 'same-origin',
+		'sec-fetch-user': '?1',
+		'upgrade-insecure-requests': '1',
+		'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+	}
+
+	params = {
+		'county': 'New York',
+		'coverageTier': 'INDIVIDUAL',
+		'entityType': 'INDIVIDUAL',
+		'planYear': '2025',
+		'youPay': '',
+	}
+
+	response = session.get(
+		'https://nystateofhealth.ny.gov/individual/searchAnonymousPlan/plan/130363',
+		params=params,
+		headers=headers,
+	)
 
 # get the homepage
 session = requests.Session()
@@ -74,12 +111,80 @@ response = session.post(
 )
 soup = BeautifulSoup(response.content, "html.parser")
 
+formUID = soup.find("input", {"name" : "formUID"})['value']
+
 # get the number of pages
-totalPages = int(soup.find("input", {"id" : "totalPages"})['value'])
+headers = {
+    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    'accept-language': 'en-US,en;q=0.9',
+    'cache-control': 'no-cache',
+    'content-type': 'application/x-www-form-urlencoded',
+    # 'cookie': 'compare_plans=; compare_counties=; compare_coverage_tiers=; compare_you_pay=; JSESSIONID=8538-vNkhv30gHRn7hvbi2S56c_SwNwN2wJU4JqU.1dk9ngk4o; cookieEnabled=true',
+    'origin': 'https://nystateofhealth.ny.gov',
+    'pragma': 'no-cache',
+    'priority': 'u=0, i',
+    'referer': 'https://nystateofhealth.ny.gov/individual/searchAnonymousPlan/search',
+    'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"macOS"',
+    'sec-fetch-dest': 'document',
+    'sec-fetch-mode': 'navigate',
+    'sec-fetch-site': 'same-origin',
+    'sec-fetch-user': '?1',
+    'upgrade-insecure-requests': '1',
+    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+}
+
+data = {
+    'entityType': 'INDIVIDUAL',
+    'searchentityType': 'INDIVIDUAL',
+    'dependent29Selected': '',
+    'searchcounty': 'NEW YORK',
+    'county': 'NEW YORK',
+    'planYearTxt': [
+        '2025',
+        '2025',
+    ],
+    'searchcoverageTierIndv': 'INDIVIDUAL',
+    'coverageTier': 'INDIVIDUAL',
+    'searchquality': '',
+    'quality': '',
+    'searchplanCategory': '',
+    'planCategory': '',
+    'searchmetal': '',
+    'metal': '',
+    'searchstdnonstd': '',
+    'stdnonstd': '',
+    'searchissuerId': '',
+    'issuerId': '',
+    'searchhiosPlanIdTxt': '',
+    'hiosPlanIdTxt': '',
+    '_dependentAge29': 'on',
+    '_outOfNetwork': 'on',
+    'calculatedAptc': '',
+    'pageNo': '0',
+    'totalPages': '41',
+    'isMMCElig': 'false',
+    'isCHPElig': 'false',
+    'isSilverElig': 'false',
+    'isEPElig': 'false',
+    'formUID': formUID,
+    'CSRFToken': CSRFToken,
+}
+
+response = session.post(
+    'https://nystateofhealth.ny.gov/individual/searchAnonymousPlan/searchPlans', 
+    headers=headers,
+    data=data,
+)
+soup = BeautifulSoup(response.content, "html.parser")
+totalPages = int(soup.find("input", {"id" : "totalPages"})['value']) + 1
+planIDs = []
+
+# we already got page 1?
 
 for i in range(1, totalPages):
 
-	getPlansFromSearch(soup)
 	formUID = soup.find("input", {"name" : "formUID"})['value']
 
 	data = {
@@ -92,8 +197,8 @@ for i in range(1, totalPages):
 			'2025',
 			'2025',
 		],
-		'searchcoverageTierIndv': 'Select',
-		'coverageTier': '',
+		'searchcoverageTierIndv': 'INDIVIDUAL', # these needed to be changed
+		'coverageTier': 'INDIVIDUAL', # these needed to be changed
 		'searchquality': '',
 		'quality': '',
 		'searchplanCategory': '',
@@ -110,7 +215,7 @@ for i in range(1, totalPages):
 		'_outOfNetwork': 'on',
 		'calculatedAptc': '',
 		'pageNo': i,
-		'totalPages': '41',
+		'totalPages': totalPages,
 		'isMMCElig': 'false',
 		'isCHPElig': 'false',
 		'isSilverElig': 'false',
@@ -124,17 +229,12 @@ for i in range(1, totalPages):
 		headers=headers,
 		data=data,
 	)
-
-	print(response.content)
-	exit()
-
-print(totalPages)
-exit()
-
+	soup = BeautifulSoup(response.content, "html.parser")
+	# retrieve from the last soup
+	planIDs.extend(getPlansFromSearch(soup))
+	print(planIDs, totalPages)
 
 exit()
-
-
 # go between pages
 
 headers = {
@@ -169,7 +269,7 @@ data = {
         '2025',
     ],
     'searchcoverageTierIndv': 'Select',
-    'coverageTier': '',
+    'coverageTier': 'INDIVIDUAL',
     'searchquality': '',
     'quality': '',
     'searchplanCategory': '',
