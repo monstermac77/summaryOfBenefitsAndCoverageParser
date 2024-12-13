@@ -7,6 +7,8 @@ marketplace = "individual" # employer
 zipCode = "10001" # 10012
 year = "2025" # 2024
 
+print(f"Searching the {marketplace} marketplace with zip {zipCode} for year {year}")
+
 def getPlansFromSearch(soup):
 	plans = soup.findAll("input", {"class" : "planSelect"})
 	ids = [plan['id'] for plan in plans]
@@ -75,12 +77,13 @@ params = {
     'lang': 'en',
 }
 
-
 response = session.get('https://nystateofhealth.ny.gov/{}/'.format(marketplace), params=params, headers=headers)
 soup = BeautifulSoup(response.content, "html.parser")
 form = soup.find("form", {"id" : "formInstantQuotes"})
 formUID = form.find("input" , {"name" : "formUID"})['value']
 CSRFToken = form.find("input" , {"name" : "CSRFToken"})['value']
+
+print("Got homepage, posting zip code.")
 
 # post the zip code
 
@@ -187,6 +190,8 @@ response = session.post(
 soup = BeautifulSoup(response.content, "html.parser")
 totalPages = int(soup.find("input", {"id" : "totalPages"})['value']) + 1
 planIDs = []
+
+print(f"Got total page count with persons covered filter: {totalPages}")
 
 # we already got page 1?
 
