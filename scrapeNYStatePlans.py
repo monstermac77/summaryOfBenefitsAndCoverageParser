@@ -47,7 +47,7 @@ def getPlan(session, planID):
 		headers=headers,
 	)
 
-	with open("plans/" + marketplace + "_" + year + "_" + str(planID) + ".html", "wb") as file:
+	with open("plans/automated/" + marketplace + "_" + year + "_" + str(planID) + ".html", "wb") as file:
 		file.write(response.content)
 	
 	exit()
