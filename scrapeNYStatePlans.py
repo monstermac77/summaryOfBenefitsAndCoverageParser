@@ -3,9 +3,9 @@ import requests
 # pip3 install beautifulsoup4
 from bs4 import BeautifulSoup
 
-marketplace = "individual"
-#marketplace = "employer"
-year = "2025"
+marketplace = "individual" # employer
+zipCode = "10001" # 10012
+year = "2025" # 2024
 
 def getPlansFromSearch(soup):
 	plans = soup.findAll("input", {"class" : "planSelect"})
@@ -20,7 +20,6 @@ def getPlan(session, planID):
 		'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
 		'accept-language': 'en-US,en;q=0.9',
 		'cache-control': 'no-cache',
-		# 'cookie': 'compare_plans=; compare_counties=; compare_coverage_tiers=; compare_you_pay=; JSESSIONID=Tei_inohhvWuEAKGgdwW_MQLrXyQxWahYr6bEm5v.1cakcsksa; cookieEnabled=true; org.springframework.web.servlet.i18n.CookieLocaleResolver.LOCALE=en',
 		'pragma': 'no-cache',
 		'priority': 'u=0, i',
 		'referer': 'https://nystateofhealth.ny.gov/{}/searchAnonymousPlan/search'.format(marketplace),
@@ -77,7 +76,6 @@ params = {
 }
 
 
-# response = session.get('https://nystateofhealth.ny.gov/employer/', params=params, headers=headers)
 response = session.get('https://nystateofhealth.ny.gov/{}/'.format(marketplace), params=params, headers=headers)
 soup = BeautifulSoup(response.content, "html.parser")
 form = soup.find("form", {"id" : "formInstantQuotes"})
@@ -108,7 +106,7 @@ headers = {
 
 data = {
     'entityId': '0',
-    'zip': '10012',
+    'zip': zipCode,
     'formUID': formUID,
     'CSRFToken': CSRFToken,
 }
