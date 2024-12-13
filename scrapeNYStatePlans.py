@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 
 marketplace = "individual"
-# marketplace = "employer"
+#marketplace = "employer"
 year = "2025"
 
 def getPlansFromSearch(soup):
@@ -13,6 +13,8 @@ def getPlansFromSearch(soup):
 	return ids
 
 def getPlan(session, planID):
+	
+	print("Getting plan", planID)
 
 	headers = {
 		'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
@@ -50,8 +52,6 @@ def getPlan(session, planID):
 	with open("plans/automated/" + marketplace + "_" + year + "_" + str(planID) + ".html", "wb") as file:
 		file.write(response.content)
 	
-	exit()
-
 # get the homepage
 session = requests.Session()
 
@@ -240,12 +240,15 @@ for i in range(1, totalPages):
 	)
 	soup = BeautifulSoup(response.content, "html.parser")
 	# retrieve from the last soup
-	planIDs.extend(getPlansFromSearch(soup))
-	break
+	
+	newIDs = getPlansFromSearch(soup)
+
+	print("Got {} new IDs:".format(len(newIDs)), newIDs)
+
+	planIDs.extend(newIDs)
 
 
 # now we have all the plans, we need to start actually getting the data
 for id in planIDs:
 	getPlan(session, id)
-	exit()
 
