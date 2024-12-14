@@ -6,7 +6,7 @@ import pprint
 import glob
 import re
 
-marketplace = "employer" # employer/individual
+marketplace = "individual" # employer/individual
 year = "2025" # 2024
 
 # note: to open all the tabs via javascript you can run:
@@ -55,16 +55,21 @@ def parseIndividualPlan(htmlPath):
 	outOfPocketMax = root.xpath('/html/body/div[1]/div[3]/div/div/div/form[1]/table[2]/tr[2]/td[1]')[0].text.split("/")[0]
 
 	# complicated, tables
-	therapyCostRaw = soup.find('div', string=re.compile(r'\s*Mental/Behavioral Health Outpatient Services\s*')).find_parent('td').find_next_sibling('td').text
-	specialistCostRaw = soup.find('div', string=re.compile(r'\s*Specialist Visit\s*')).find_parent('td').find_next_sibling('td').text
-	primaryCareCostRaw = soup.find('div', string=re.compile(r'\s*Primary Care Visit to Treat an Injury or Illness\s*')).find_parent('td').find_next_sibling('td').text
-	bloodDrawRaw = soup.find('div', string=re.compile(r'\s*Laboratory Outpatient and Professional Services\s*')).find_parent('td').find_next_sibling('td').text
-	psychiatristCostRaw = therapyCostRaw
-	urgentCareRaw = soup.find('div', string=re.compile(r'\s*Urgent Care Centers or Facilities\s*')).find_parent('td').find_next_sibling('td').text
-	surgeryFacilityRaw = soup.find('div', string=re.compile(r'\s*Outpatient Facility Fee \(e.g., Ambulatory Surgery Center\)\s*')).find_parent('td').find_next_sibling('td').text
-	surgeryServicesRaw = soup.find('div', string=re.compile(r'\s*Outpatient Surgery Physician/Surgical Services\s*')).find_parent('td').find_next_sibling('td').text
-	genericDrugsRaw = soup.find('div', string=re.compile(r'\s*Generic Drugs\s*')).find_parent('td').find_next_sibling('td').text
-
+	try:
+		therapyCostRaw = soup.find('div', string=re.compile(r'\s*Mental/Behavioral Health Outpatient Services\s*')).find_parent('td').find_next_sibling('td').text
+		specialistCostRaw = soup.find('div', string=re.compile(r'\s*Specialist Visit\s*')).find_parent('td').find_next_sibling('td').text
+		primaryCareCostRaw = soup.find('div', string=re.compile(r'\s*Primary Care Visit to Treat an Injury or Illness\s*')).find_parent('td').find_next_sibling('td').text
+		bloodDrawRaw = soup.find('div', string=re.compile(r'\s*Laboratory Outpatient and Professional Services\s*')).find_parent('td').find_next_sibling('td').text
+		psychiatristCostRaw = therapyCostRaw
+		urgentCareRaw = soup.find('div', string=re.compile(r'\s*Urgent Care Centers or Facilities\s*')).find_parent('td').find_next_sibling('td').text
+		surgeryFacilityRaw = soup.find('div', string=re.compile(r'\s*Outpatient Facility Fee \(e.g., Ambulatory Surgery Center\)\s*')).find_parent('td').find_next_sibling('td').text
+		surgeryServicesRaw = soup.find('div', string=re.compile(r'\s*Outpatient Surgery Physician/Surgical Services\s*')).find_parent('td').find_next_sibling('td').text
+		genericDrugsRaw = soup.find('div', string=re.compile(r'\s*Generic Drugs\s*')).find_parent('td').find_next_sibling('td').text
+	except:
+		print("Unable to parse price data for", plan.strip(), "likely because it's a dental plan, but you should check.")
+		print("		", link.strip())
+		return {}
+	
 	return {
 		"carrier" : carrier,
 		"plan" : plan,
