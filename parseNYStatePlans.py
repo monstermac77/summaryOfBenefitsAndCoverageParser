@@ -6,7 +6,7 @@ import pprint
 import glob
 import re
 
-marketplace = "individual" # employer/individual
+marketplace = "employer" # employer/individual
 year = "2025" # 2024
 
 # note: to open all the tabs via javascript you can run:
@@ -53,10 +53,36 @@ def parseIndividualPlan(htmlPath):
 	premium = root.xpath('/html/body/div[1]/div[3]/div/div/div/form[1]/table[2]/tr[1]/td[1]/div/span')[0].text
 	deductible = root.xpath('/html/body/div[1]/div[3]/div/div/div/form[1]/table[2]/tr[3]/td[3]')[0].text.split("/")[0]
 	outOfPocketMax = root.xpath('/html/body/div[1]/div[3]/div/div/div/form[1]/table[2]/tr[2]/td[1]')[0].text.split("/")[0]
-	
 
+	# complicated, tables
+	therapyCostRaw = soup.find('div', string=re.compile(r'\s*Mental/Behavioral Health Outpatient Services\s*')).find_parent('td').find_next_sibling('td').text
+	specialistCostRaw = soup.find('div', string=re.compile(r'\s*Specialist Visit\s*')).find_parent('td').find_next_sibling('td').text
+	primaryCareCostRaw = soup.find('div', string=re.compile(r'\s*Primary Care Visit to Treat an Injury or Illness\s*')).find_parent('td').find_next_sibling('td').text
+	bloodDrawRaw = soup.find('div', string=re.compile(r'\s*Laboratory Outpatient and Professional Services\s*')).find_parent('td').find_next_sibling('td').text
+	psychiatristCostRaw = therapyCostRaw
+	urgentCareRaw = soup.find('div', string=re.compile(r'\s*Urgent Care Centers or Facilities\s*')).find_parent('td').find_next_sibling('td').text
+	surgeryFacilityRaw = soup.find('div', string=re.compile(r'\s*Outpatient Facility Fee \(e.g., Ambulatory Surgery Center\)\s*')).find_parent('td').find_next_sibling('td').text
+	surgeryServicesRaw = soup.find('div', string=re.compile(r'\s*Outpatient Surgery Physician/Surgical Services\s*')).find_parent('td').find_next_sibling('td').text
+	genericDrugsRaw = soup.find('div', string=re.compile(r'\s*Generic Drugs\s*')).find_parent('td').find_next_sibling('td').text
 
-	exit()
+	return {
+		"carrier" : carrier,
+		"plan" : plan,
+		"link" : link,
+		"level" : metalLevel,
+		"premium" : premium,
+		"deductible" : deductible,
+		"outOfPocketMax"  : outOfPocketMax,
+		"therapyCostRaw" : therapyCostRaw,
+		"specialistCostRaw" : specialistCostRaw,
+		"primaryCareCostRaw" : primaryCareCostRaw,
+		"bloodDrawCostRaw" : bloodDrawRaw,
+		"psychiatristCostRaw" : psychiatristCostRaw,
+		"urgentCareCostRaw" : urgentCareRaw,
+		"surgeryFacilitiesCostRaw" : surgeryFacilityRaw,
+		"surgeryServicesCostRaw" : surgeryServicesRaw,
+		"genericDrugsCostRaw" : genericDrugsRaw
+	}
 
 # different HTML structure than the individual plans
 def parseSHOPPlan(htmlPath):
@@ -93,8 +119,11 @@ def parseSHOPPlan(htmlPath):
 	target_div = root.xpath('//div[@class="subCol" and text()="Urgent Care Centers or Facilities"]')[0]
 	urgentCareRaw = target_div.xpath('following::div[@class="subCol"][1]')[0].text
 
+	target_div = root.xpath('//div[@class="subCol" and text()="Outpatient Facility Fee (e.g., Ambulatory Surgery Center)"]')[0]
+	surgeryFacilityRaw = target_div.xpath('following::div[@class="subCol"][1]')[0].text
+
 	target_div = root.xpath('//div[@class="subCol" and text()="Outpatient Surgery Physician/Surgical Services"]')[0]
-	surgeryRaw = target_div.xpath('following::div[@class="subCol"][1]')[0].text
+	surgeryServicesRaw = target_div.xpath('following::div[@class="subCol"][1]')[0].text
 
 	target_div = root.xpath('//div[@class="subCol" and text()="Generic Drugs"]')[0]
 	genericDrugsRaw = target_div.xpath('following::div[@class="subCol"][1]')[0].text
@@ -113,17 +142,18 @@ def parseSHOPPlan(htmlPath):
 		"bloodDrawCostRaw" : bloodDrawRaw,
 		"psychiatristCostRaw" : psychiatristCostRaw,
 		"urgentCareCostRaw" : urgentCareRaw,
-		"surgeryCostRaw" : surgeryRaw
+		"surgeryFacilitiesCostRaw" : surgeryFacilityRaw,
+		"surgeryServicesCostRaw" : surgeryServicesRaw,
+		"genericDrugsCostRaw" : genericDrugsRaw
 	}
 
 
 plans = []
 if marketplace == "employer":
-	for file in glob.glob("plans/automated/employer*.html"):
+	for file in glob.glob(f"plans/automated/employer_{year}*.html"):
 		plans.append(parseSHOPPlan(file))
 elif marketplace == "individual":
-	# for file in glob.glob(f"plans/automated/individual_{year}*.html"):
-	for file in glob.glob(f"plans/automated/individual_2025_126873.html"):
+	for file in glob.glob(f"plans/automated/individual_{year}*.html"):
 		plans.append(parseIndividualPlan(file))
 
 
