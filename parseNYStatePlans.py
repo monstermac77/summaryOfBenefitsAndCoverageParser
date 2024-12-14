@@ -25,6 +25,12 @@ def getCarrier(html):
 		return "Anthem"
 	elif "hioscar.com" in html:
 		return "Oscar"
+	elif "healthfirst.org" in html:
+		return "Healthfirst"
+	elif "fideliscare.org" in html:
+		return "Ambetter from Fidelis Care"
+	elif "metroplus.org" in html:
+		return "MetroPlusHealth"
 	return "Could not determine carrier"
 
 def is_numerical(value):
