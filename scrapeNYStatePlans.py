@@ -42,16 +42,15 @@ def getPlan(session, formUID, CSRFToken, type, identifier):
 		}
 
 		url = f"https://nystateofhealth.ny.gov/{marketplace}/searchAnonymousPlan/plan/{planID}?county=New%20York&coverageTier=INDIVIDUAL&entityType=INDIVIDUAL&planYear={year}&youPay="
-		print(url)
 		response = session.get(
 			url,
 			headers=headers,
 		)
 
-		html = response.content.decode('utf-8')
+		html = response.content
 
 		# add in the plan URL for the parser
-		html = str(html + f"<div id='scrapersLinkToPlan>{url}</div>")
+		html = html + ("Scrapers link to plan: "+ url).encode('utf-8')
 
 	elif type == "employer":
 
