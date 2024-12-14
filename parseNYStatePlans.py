@@ -23,6 +23,8 @@ def getCarrier(html):
 		return "United Healthcare"
 	elif "anthem.com" in html:
 		return "Anthem"
+	elif "hioscar.com" in html:
+		return "Oscar"
 	return "Could not determine carrier"
 
 def is_numerical(value):
@@ -42,11 +44,17 @@ def parseIndividualPlan(htmlPath):
 	html = open(htmlPath).read()
 	soup = BeautifulSoup(html, "html.parser")
 
+	# note: for some reason had to remove the tbody's in these for them to work, copied full xpath from Chrome
 	root = etree.HTML(html)
 	plan = root.xpath('/html/body/div/div[3]/div/div/div/form[1]/table[1]/tr/th[3]')[0].text
 	carrier = getCarrier(html)
+	link = html.split("Scrapers link to plan:")[1]
+	metalLevel = root.xpath('/html/body/div[1]/div[3]/div/div/div/form[1]/table[2]/tr[1]/td[2]/div')[0].text
+	premium = root.xpath('/html/body/div[1]/div[3]/div/div/div/form[1]/table[2]/tr[1]/td[1]/div/span')[0].text
+	deductible = root.xpath('/html/body/div[1]/div[3]/div/div/div/form[1]/table[2]/tr[3]/td[3]')[0].text.split("/")[0]
+	outOfPocketMax = root.xpath('/html/body/div[1]/div[3]/div/div/div/form[1]/table[2]/tr[2]/td[1]')[0].text.split("/")[0]
+	
 
-	print(carrier)
 
 	exit()
 
@@ -114,7 +122,8 @@ if marketplace == "employer":
 	for file in glob.glob("plans/automated/employer*.html"):
 		plans.append(parseSHOPPlan(file))
 elif marketplace == "individual":
-	for file in glob.glob(f"plans/automated/individual_{year}*.html"):
+	# for file in glob.glob(f"plans/automated/individual_{year}*.html"):
+	for file in glob.glob(f"plans/automated/individual_2025_126873.html"):
 		plans.append(parseIndividualPlan(file))
 
 
