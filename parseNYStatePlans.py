@@ -68,7 +68,7 @@ def parseIndividualPlan(htmlPath):
 	except:
 		print("Unable to parse price data for", plan.strip(), "likely because it's a dental plan, but you should check.")
 		print("		", link.strip())
-		return {}
+		return None
 	
 	return {
 		"carrier" : carrier,
@@ -164,12 +164,14 @@ elif marketplace == "individual":
 
 # clean it up a bit
 for plan in plans:
+	if plan is None: continue # we logged this already, it's probably a dental plan
 	for key, value in plan.items():
 		plan[key] = value.strip().replace("$", "")
 
 # parse it out a bit
 processedPlans = []
 for plan in plans:
+	if plan is None: continue # we logged this already, it's probably a dental plan
 	processedPlan = {}
 	for key, value in plan.items():
 		if "Raw" not in key:
