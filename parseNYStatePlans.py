@@ -6,7 +6,7 @@ import pprint
 import glob
 import re
 
-marketplace = "individual" # employer/individual
+marketplace = "employer" # employer/individual
 year = "2025" # 2024
 
 # note: to open all the tabs via javascript you can run:
@@ -221,15 +221,15 @@ for plan in processedPlans:
 
 	# for when there's a full charge
 	fieldsToColumnsMap = {
-		"therapyCost" : "$AM$2",
-		"specialistCost" : "$AM$3",
-		"primaryCareCost" : "$AM$4",
-		"bloodDrawCost" : "$AM$5",
-		"psychiatristCost" : "$AM$6",
-		"urgentCareCost" : "$AM$7",
-		"surgeryFacilitiesCost" : "$AM$8",
-		"surgeryServicesCost" : "$AM$9",
-		"genericDrugsCost" : "$AM$10"
+		"therapyCost" : "$BN$2",
+		"specialistCost" : "$BN$3",
+		"primaryCareCost" : "$BN$4",
+		"bloodDrawCost" : "$BN$5",
+		"psychiatristCost" : "$BN$6",
+		"urgentCareCost" : "$BN$7",
+		"surgeryFacilitiesCost" : "$BN$8",
+		"surgeryServicesCost" : "$BN$9",
+		"genericDrugsCost" : "$BN$10"
 	}
 
 	if marketplace == "employer":
