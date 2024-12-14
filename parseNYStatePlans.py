@@ -221,15 +221,15 @@ for plan in processedPlans:
 
 	# for when there's a full charge
 	fieldsToColumnsMap = {
-		"therapyCost" : "$AL$2",
-		"specialistCost" : "$AL$3",
-		"primaryCareCost" : "$AL$4",
-		"bloodDrawCost" : "$AL$5",
-		"psychiatristCost" : "$AL$6",
-		"urgentCareCost" : "$AL$7",
-		"surgeryFacilitiesCost" : "$AL$8",
-		"surgeryServicesCost" : "$AL$9",
-		"genericDrugsCost" : "$AL$10"
+		"therapyCost" : "$AM$2",
+		"specialistCost" : "$AM$3",
+		"primaryCareCost" : "$AM$4",
+		"bloodDrawCost" : "$AM$5",
+		"psychiatristCost" : "$AM$6",
+		"urgentCareCost" : "$AM$7",
+		"surgeryFacilitiesCost" : "$AM$8",
+		"surgeryServicesCost" : "$AM$9",
+		"genericDrugsCost" : "$AM$10"
 	}
 
 	if marketplace == "employer":
@@ -239,7 +239,7 @@ for plan in processedPlans:
 
 	# to get them to print in a certain order, probably better way to do this
 	#pprint.pprint(plan)
-	for column in ["carrier", "plan", "link", "level", "premium", "deductible", "outOfPocketMax", "therapyCostBeforeDeductible", "therapyCostAfterDeductible", "specialistCostBeforeDeductible", "specialistCostAfterDeductible", "primaryCareCostBeforeDeductible", "primaryCareCostAfterDeductible", "bloodDrawCostBeforeDeductible", "bloodDrawCostAfterDeductible", "psychiatristCostBeforeDeductible", "psychiatristCostAfterDeductible", "urgentCareCostBeforeDeductible", "urgentCareCostAfterDeductible", "surgeryFacilitiesCostBeforeDeductible", "surgeryFacilitiesCostAfterDeductible", "surgeryServicesCostAfterDeductible", "surgeryServicesCostAfterDeductible", "genericDrugsCostBeforeDeductible", "genericDrugsCostAfterDeductible"]:
+	for column in ["carrier", "plan", "link", "level", "premium", "deductible", "outOfPocketMax", "therapyCostBeforeDeductible", "therapyCostAfterDeductible", "specialistCostBeforeDeductible", "specialistCostAfterDeductible", "primaryCareCostBeforeDeductible", "primaryCareCostAfterDeductible", "bloodDrawCostBeforeDeductible", "bloodDrawCostAfterDeductible", "psychiatristCostBeforeDeductible", "psychiatristCostAfterDeductible", "urgentCareCostBeforeDeductible", "urgentCareCostAfterDeductible", "surgeryFacilitiesCostBeforeDeductible", "surgeryFacilitiesCostAfterDeductible", "surgeryServicesCostBeforeDeductible", "surgeryServicesCostAfterDeductible", "genericDrugsCostBeforeDeductible", "genericDrugsCostAfterDeductible"]:
 		value = plan[column]
 
 		chosenPair = None
@@ -261,3 +261,4 @@ for plan in processedPlans:
 
 	print(finalString)
 
+print("Copy and paste the above, paste it in the spreadsheet, then do a reset on the background color and on the text color, then with everything selected change it to field type money, then reduce the decimal places count.")
