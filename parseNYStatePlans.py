@@ -6,10 +6,12 @@ import pprint
 import glob
 import re
 
+# note: to open all the tabs via javascript you can run:
 # $(".comparePlan-tabs").click() to open everything
 
 # TODO: could improve the gathering of the HTML for sure, probably automate it, but the javascript loading of the page makes it hard
 # it returns you to the fucking first page every time you click on one, so it makes sense to basically open 41 tabs I guess and click on the right one and then save?
+# Update: wrote the scraper, it wasn't horrible but needed to be different depending on whether it was the individual or SHOP marketplace
 
 def parsePlan(htmlPath):
 
@@ -26,16 +28,16 @@ def parsePlan(htmlPath):
 		return "Could not determine carrier"
 
 	def is_numerical(value):
-	    
-	    # remove dollar signs
-	    value = value.replace("$", "")
-	    
-	    # Check if the cleaned string is a valid numeric string
-	    try:
-	        float(value)
-	        return True
-	    except ValueError:
-	        return False
+		
+		# remove dollar signs
+		value = value.replace("$", "")
+		
+		# Check if the cleaned string is a valid numeric string
+		try:
+			float(value)
+			return True
+		except ValueError:
+			return False
 
 	root = etree.HTML(html)
 	plan = root.xpath('/html/body/div/div[4]/div/div/div/form[1]/div[1]/div/div/h5')[0].text
