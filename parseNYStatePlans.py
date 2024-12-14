@@ -207,12 +207,14 @@ for plan in processedPlans:
 		"bloodDrawCost" : "$C$5",
 		"psychiatristCost" : "$C$6",
 		"urgentCareCost" : "$C$7",
-		"surgeryCost" : "$C$8"
+		"surgeryFacilitiesCost" : "$C$8",
+		"surgeryServicesCost" : "$C$9",
+		"genericDrugsCost" : "$C$10"
 	}
 
 	finalString = '"SHOP NYS Marketplace", '
 	# to get them to print in a certain order, probably better way to do this
-	for column in ["carrier", "plan", "link", "level", "premium", "deductible", "outOfPocketMax", "therapyCostBeforeDeductible", "therapyCostAfterDeductible", "specialistCostBeforeDeductible", "specialistCostAfterDeductible", "primaryCareCostBeforeDeductible", "primaryCareCostAfterDeductible", "bloodDrawCostBeforeDeductible", "bloodDrawCostAfterDeductible", "psychiatristCostBeforeDeductible", "psychiatristCostAfterDeductible", "urgentCareCostBeforeDeductible", "urgentCareCostAfterDeductible", "surgeryCostBeforeDeductible", "surgeryCostAfterDeductible"]:
+	for column in ["carrier", "plan", "link", "level", "premium", "deductible", "outOfPocketMax", "therapyCostBeforeDeductible", "therapyCostAfterDeductible", "specialistCostBeforeDeductible", "specialistCostAfterDeductible", "primaryCareCostBeforeDeductible", "primaryCareCostAfterDeductible", "bloodDrawCostBeforeDeductible", "bloodDrawCostAfterDeductible", "psychiatristCostBeforeDeductible", "psychiatristCostAfterDeductible", "urgentCareCostBeforeDeductible", "urgentCareCostAfterDeductible", "surgeryFacilitiesCostBeforeDeductible", "surgeryFacilitiesCostAfterDeductible", "surgeryServicesCostAfterDeductible", "surgeryServicesCostAfterDeductible", "genericDrugsCostBeforeDeductible", "genericDrugsCostAfterDeductible"]:
 		value = plan[column]
 
 		chosenPair = None
