@@ -221,18 +221,22 @@ for plan in processedPlans:
 
 	# for when there's a full charge
 	fieldsToColumnsMap = {
-		"therapyCost" : "$C$2",
-		"specialistCost" : "$C$3",
-		"primaryCareCost" : "$C$4",
-		"bloodDrawCost" : "$C$5",
-		"psychiatristCost" : "$C$6",
-		"urgentCareCost" : "$C$7",
-		"surgeryFacilitiesCost" : "$C$8",
-		"surgeryServicesCost" : "$C$9",
-		"genericDrugsCost" : "$C$10"
+		"therapyCost" : "$AL$2",
+		"specialistCost" : "$AL$3",
+		"primaryCareCost" : "$AL$4",
+		"bloodDrawCost" : "$AL$5",
+		"psychiatristCost" : "$AL$6",
+		"urgentCareCost" : "$AL$7",
+		"surgeryFacilitiesCost" : "$AL$8",
+		"surgeryServicesCost" : "$AL$9",
+		"genericDrugsCost" : "$AL$10"
 	}
 
-	finalString = '"SHOP NYS Marketplace", '
+	if marketplace == "employer":
+		finalString = '"SHOP NYS Marketplace", '
+	elif marketplace == "individual":
+		finalString = '"NYS Individual Marketplace", '
+
 	# to get them to print in a certain order, probably better way to do this
 	#pprint.pprint(plan)
 	for column in ["carrier", "plan", "link", "level", "premium", "deductible", "outOfPocketMax", "therapyCostBeforeDeductible", "therapyCostAfterDeductible", "specialistCostBeforeDeductible", "specialistCostAfterDeductible", "primaryCareCostBeforeDeductible", "primaryCareCostAfterDeductible", "bloodDrawCostBeforeDeductible", "bloodDrawCostAfterDeductible", "psychiatristCostBeforeDeductible", "psychiatristCostAfterDeductible", "urgentCareCostBeforeDeductible", "urgentCareCostAfterDeductible", "surgeryFacilitiesCostBeforeDeductible", "surgeryFacilitiesCostAfterDeductible", "surgeryServicesCostAfterDeductible", "surgeryServicesCostAfterDeductible", "genericDrugsCostBeforeDeductible", "genericDrugsCostAfterDeductible"]:
