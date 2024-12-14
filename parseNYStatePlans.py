@@ -13,31 +13,32 @@ import re
 # it returns you to the fucking first page every time you click on one, so it makes sense to basically open 41 tabs I guess and click on the right one and then save?
 # Update: wrote the scraper, it wasn't horrible but needed to be different depending on whether it was the individual or SHOP marketplace
 
-def parsePlan(htmlPath):
+def getCarrier(html):
+	if "emblemhealth.com" in html:
+		return "Emblem Health"
+	elif "UnitedHealthcare.png" in html:
+		return "United Healthcare"
+	elif "anthem.com" in html:
+		return "Anthem"
+	return "Could not determine carrier"
+
+def is_numerical(value):
+	
+	# remove dollar signs
+	value = value.replace("$", "")
+	
+	# Check if the cleaned string is a valid numeric string
+	try:
+		float(value)
+		return True
+	except ValueError:
+		return False
+
+# different HTML structure than the individual plans
+def parseSHOPPlan(htmlPath):
 
 	html = open(htmlPath).read()
 	soup = BeautifulSoup(html, "html.parser")
-
-	def getCarrier(html):
-		if "emblemhealth.com" in html:
-			return "Emblem Health"
-		elif "UnitedHealthcare.png" in html:
-			return "United Healthcare"
-		elif "anthem.com" in html:
-			return "Anthem"
-		return "Could not determine carrier"
-
-	def is_numerical(value):
-		
-		# remove dollar signs
-		value = value.replace("$", "")
-		
-		# Check if the cleaned string is a valid numeric string
-		try:
-			float(value)
-			return True
-		except ValueError:
-			return False
 
 	root = etree.HTML(html)
 	plan = root.xpath('/html/body/div/div[4]/div/div/div/form[1]/div[1]/div/div/h5')[0].text
@@ -74,7 +75,7 @@ def parsePlan(htmlPath):
 	target_div = root.xpath('//div[@class="subCol" and text()="Generic Drugs"]')[0]
 	genericDrugsRaw = target_div.xpath('following::div[@class="subCol"][1]')[0].text
 
-	fields = {
+	return {
 		"carrier" : carrier,
 		"plan" : plan,
 		"link" : link,
@@ -91,42 +92,53 @@ def parsePlan(htmlPath):
 		"surgeryCostRaw" : surgeryRaw
 	}
 
-	# clean it up a bit
-	for key, value in fields.items():
-		fields[key] = value.strip().replace("$", "")
 
-	#pprint.pprint(fields)
+plans = []
+for file in glob.glob("plans/automated/employer*.html"):
+	plans.append(parseSHOPPlan(file))
 
-	# parse it out a bit
-	finalFields = {}
-	for key, value in fields.items():
+
+# clean it up a bit
+for plan in plans:
+	for key, value in plan.items():
+		plan[key] = value.strip().replace("$", "")
+
+# parse it out a bit
+processedPlans = []
+for plan in plans:
+	processedPlan = {}
+	for key, value in plan.items():
 		if "Raw" not in key:
 			# straightforward
-			finalFields[key] = value
+			processedPlan[key] = value
 		else:
 			costName = key.replace("Raw", "")
 			# if it's a numberical value, then it's very straightforward 
 			if is_numerical(value):
-				finalFields[costName+"BeforeDeductible"] = finalFields[costName+"AfterDeductible"] = value.strip()
+				processedPlan[costName+"BeforeDeductible"] = processedPlan[costName+"AfterDeductible"] = value.strip()
 			else:
 				# there's some sort of difference
 				if "Copay after deductible" in value:
 					raw = value.replace("Copay after deductible", "")
-					finalFields[costName+"BeforeDeductible"] = "FULL CHARGE"
-					finalFields[costName+"AfterDeductible"] = raw.strip()
+					processedPlan[costName+"BeforeDeductible"] = "FULL CHARGE"
+					processedPlan[costName+"AfterDeductible"] = raw.strip()
 				if "Coinsurance after deductible" in value:
 					raw = value.replace("Coinsurance after deductible" , "")
 					processed = float(raw.strip().replace("%", "")) / 100
-					finalFields[costName+"BeforeDeductible"] = "FULL CHARGE"
-					finalFields[costName+"AfterDeductible"] = "PARTIAL CHARGE: {}".format(processed)
+					processedPlan[costName+"BeforeDeductible"] = "FULL CHARGE"
+					processedPlan[costName+"AfterDeductible"] = "PARTIAL CHARGE: {}".format(processed)
 				if "No Charge after deductible" in value:
-					finalFields[costName+"BeforeDeductible"] = "FULL CHARGE"
-					finalFields[costName+"AfterDeductible"] = "0"
+					processedPlan[costName+"BeforeDeductible"] = "FULL CHARGE"
+					processedPlan[costName+"AfterDeductible"] = "0"
 				if "No Charge" == value:
-					finalFields[costName+"BeforeDeductible"] = "0"
-					finalFields[costName+"AfterDeductible"] = "0"
+					processedPlan[costName+"BeforeDeductible"] = "0"
+					processedPlan[costName+"AfterDeductible"] = "0"
 
-	#pprint.pprint(finalFields)
+	# pprint.pprint(processedPlan)
+	processedPlans.append(processedPlan)
+
+# finally, for the printing:
+for plan in processedPlans:
 
 	# for when there's a full charge
 	fieldsToColumnsMap = {
@@ -140,8 +152,9 @@ def parsePlan(htmlPath):
 	}
 
 	finalString = '"SHOP NYS Marketplace", '
+	# to get them to print in a certain order, probably better way to do this
 	for column in ["carrier", "plan", "link", "level", "premium", "deductible", "outOfPocketMax", "therapyCostBeforeDeductible", "therapyCostAfterDeductible", "specialistCostBeforeDeductible", "specialistCostAfterDeductible", "primaryCareCostBeforeDeductible", "primaryCareCostAfterDeductible", "bloodDrawCostBeforeDeductible", "bloodDrawCostAfterDeductible", "psychiatristCostBeforeDeductible", "psychiatristCostAfterDeductible", "urgentCareCostBeforeDeductible", "urgentCareCostAfterDeductible", "surgeryCostBeforeDeductible", "surgeryCostAfterDeductible"]:
-		value = finalFields[column]
+		value = plan[column]
 
 		chosenPair = None
 		for key, spreadsheetPair in fieldsToColumnsMap.items():
@@ -161,8 +174,4 @@ def parsePlan(htmlPath):
 	finalString = finalString.rstrip(", ")
 
 	print(finalString)
-
-for file in glob.glob("plans/*.html"):
-	parsePlan(file)
-
 
