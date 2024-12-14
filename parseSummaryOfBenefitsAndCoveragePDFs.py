@@ -17,5 +17,21 @@
 # brew tap adoptopenjdk/openjdk
 # brew install --cask adoptopenjdk8
 from tika import parser 
-raw = parser.from_file("summaryOfBenefitsAndCoveragePDFs/2024-2025-aetna-justworks-medical-c3-sbc.pdf")
-print(raw['content'])
+import re
+raw = parser.from_file("summaryOfBenefitsAndCoveragePDFs/2024-2025-aetna-justworks-medical-c3-sbc.pdf")['content']
+
+def replace_multiple_spaces(input_string):
+    return re.sub(r'\s+', ' ', input_string).strip()
+
+def getNumberFromString(string):
+     string = string.replace(",", "")
+     return re.findall(r'\d+', string)[0]
+
+rawStripped = replace_multiple_spaces(raw.replace("\n", " "))
+deductibleSection = rawStripped.split("What is the overall deductible?")[1].split("Are there services covered before")[0]
+reduced = deductibleSection.split(" Out")[0]
+if ":" in reduced:
+	reduced = reduced.split(":")[1]
+if "/" in reduced:
+    reduced = reduced.split("/")[0]
+print(getNumberFromString(reduced))
