@@ -158,6 +158,7 @@ if marketplace == "employer":
 	for file in glob.glob(f"plans/automated/employer_{year}*.html"):
 		plans.append(parseSHOPPlan(file))
 elif marketplace == "individual":
+	#for file in glob.glob(f"plans/automated/individual_2025_126895.html"):
 	for file in glob.glob(f"plans/automated/individual_{year}*.html"):
 		plans.append(parseIndividualPlan(file))
 
@@ -174,6 +175,7 @@ for plan in plans:
 	if plan is None: continue # we logged this already, it's probably a dental plan
 	processedPlan = {}
 	for key, value in plan.items():
+		# print(key, value)
 		if "Raw" not in key:
 			# straightforward
 			processedPlan[key] = value
@@ -183,22 +185,27 @@ for plan in plans:
 			if is_numerical(value):
 				processedPlan[costName+"BeforeDeductible"] = processedPlan[costName+"AfterDeductible"] = value.strip()
 			else:
-				# there's some sort of difference
+				# there's some sort of difference or it's weird formatting
 				if "Copay after deductible" in value:
 					raw = value.replace("Copay after deductible", "")
 					processedPlan[costName+"BeforeDeductible"] = "FULL CHARGE"
 					processedPlan[costName+"AfterDeductible"] = raw.strip()
-				if "Coinsurance after deductible" in value:
+				elif "Coinsurance after deductible" in value:
 					raw = value.replace("Coinsurance after deductible" , "")
 					processed = float(raw.strip().replace("%", "")) / 100
 					processedPlan[costName+"BeforeDeductible"] = "FULL CHARGE"
 					processedPlan[costName+"AfterDeductible"] = "PARTIAL CHARGE: {}".format(processed)
-				if "No Charge after deductible" in value:
+				elif "No Charge after deductible" in value:
 					processedPlan[costName+"BeforeDeductible"] = "FULL CHARGE"
 					processedPlan[costName+"AfterDeductible"] = "0"
-				if "No Charge" == value:
+				elif "No Charge" == value:
 					processedPlan[costName+"BeforeDeductible"] = "0"
 					processedPlan[costName+"AfterDeductible"] = "0"
+				elif "%" in value:
+					# it's just flat co-insurance
+					processed = float(value.strip().replace("%", "")) / 100
+					processedPlan[costName+"BeforeDeductible"] = "PARTIAL CHARGE: {}".format(processed)
+					processedPlan[costName+"AfterDeductible"] = "PARTIAL CHARGE: {}".format(processed)
 
 	# pprint.pprint(processedPlan)
 	processedPlans.append(processedPlan)
@@ -221,6 +228,7 @@ for plan in processedPlans:
 
 	finalString = '"SHOP NYS Marketplace", '
 	# to get them to print in a certain order, probably better way to do this
+	#pprint.pprint(plan)
 	for column in ["carrier", "plan", "link", "level", "premium", "deductible", "outOfPocketMax", "therapyCostBeforeDeductible", "therapyCostAfterDeductible", "specialistCostBeforeDeductible", "specialistCostAfterDeductible", "primaryCareCostBeforeDeductible", "primaryCareCostAfterDeductible", "bloodDrawCostBeforeDeductible", "bloodDrawCostAfterDeductible", "psychiatristCostBeforeDeductible", "psychiatristCostAfterDeductible", "urgentCareCostBeforeDeductible", "urgentCareCostAfterDeductible", "surgeryFacilitiesCostBeforeDeductible", "surgeryFacilitiesCostAfterDeductible", "surgeryServicesCostAfterDeductible", "surgeryServicesCostAfterDeductible", "genericDrugsCostBeforeDeductible", "genericDrugsCostAfterDeductible"]:
 		value = plan[column]
 
