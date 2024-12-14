@@ -4,7 +4,7 @@ import json
 # pip3 install beautifulsoup4
 from bs4 import BeautifulSoup
 
-marketplace = "employer" # employer/individual
+marketplace = "individual" # employer/individual
 zipCode = "10001" # 10001/10012
 year = "2025" # 2024/2025
 
@@ -41,19 +41,17 @@ def getPlan(session, formUID, CSRFToken, type, identifier):
 			'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
 		}
 
-		params = {
-			'county': 'New York',
-			'coverageTier': 'INDIVIDUAL',
-			'entityType': 'INDIVIDUAL',
-			'planYear': year,
-			'youPay': '',
-		}
-
+		url = f"https://nystateofhealth.ny.gov/{marketplace}/searchAnonymousPlan/plan/{planID}?county=New%20York&coverageTier=INDIVIDUAL&entityType=INDIVIDUAL&planYear={year}&youPay="
+		print(url)
 		response = session.get(
-			'https://nystateofhealth.ny.gov/{}/searchAnonymousPlan/plan/{}'.format(marketplace, planID),
-			params=params,
+			url,
 			headers=headers,
 		)
+
+		html = response.content.decode('utf-8')
+
+		# add in the plan URL for the parser
+		html = str(html + f"<div id='scrapersLinkToPlan>{url}</div>")
 
 	elif type == "employer":
 
@@ -96,15 +94,17 @@ def getPlan(session, formUID, CSRFToken, type, identifier):
 		# 	('enrollmentSetupId', ''),
 		# ]
 		
+		url = 'https://nystateofhealth.ny.gov/employer/shop/search/plan/{}/{}/{}NEW%20YORK'.format(productID, planID, planID)
 		response = session.get(
-			'https://nystateofhealth.ny.gov/employer/shop/search/plan/{}/{}/{}NEW%20YORK'.format(productID, planID, planID),
+			url,
 			# params=params,
 			headers=headers,
 		)
 
+		html = response.content
 
 	with open("plans/automated/" + marketplace + "_" + year + "_" + str(planID) + ".html", "wb") as file:
-		file.write(response.content)
+		file.write(html)
 
 # get the homepage
 session = requests.Session()
@@ -324,7 +324,7 @@ if marketplace == "individual":
 	
 	# now we have all the plans, we need to start actually getting the data
 	for id in planIDs:
-		getPlan(session, "individual", id)
+		getPlan(session, formUID, CSRFToken, "individual", id)
 
 elif marketplace == "employer":
 

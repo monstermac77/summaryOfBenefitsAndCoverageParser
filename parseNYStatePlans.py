@@ -6,6 +6,9 @@ import pprint
 import glob
 import re
 
+marketplace = "individual" # employer/individual
+year = "2025" # 2024
+
 # note: to open all the tabs via javascript you can run:
 # $(".comparePlan-tabs").click() to open everything
 
@@ -33,6 +36,19 @@ def is_numerical(value):
 		return True
 	except ValueError:
 		return False
+
+def parseIndividualPlan(htmlPath):
+	
+	html = open(htmlPath).read()
+	soup = BeautifulSoup(html, "html.parser")
+
+	root = etree.HTML(html)
+	plan = root.xpath('/html/body/div/div[3]/div/div/div/form[1]/table[1]/tr/th[3]')[0].text
+	carrier = getCarrier(html)
+
+	print(carrier)
+
+	exit()
 
 # different HTML structure than the individual plans
 def parseSHOPPlan(htmlPath):
@@ -94,8 +110,12 @@ def parseSHOPPlan(htmlPath):
 
 
 plans = []
-for file in glob.glob("plans/automated/employer*.html"):
-	plans.append(parseSHOPPlan(file))
+if marketplace == "employer":
+	for file in glob.glob("plans/automated/employer*.html"):
+		plans.append(parseSHOPPlan(file))
+elif marketplace == "individual":
+	for file in glob.glob(f"plans/automated/individual_{year}*.html"):
+		plans.append(parseIndividualPlan(file))
 
 
 # clean it up a bit
