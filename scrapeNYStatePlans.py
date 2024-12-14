@@ -78,34 +78,34 @@ def getPlan(session, formUID, CSRFToken, type, identifier):
 			'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
 		}
 
-		params = [
-			('enrollmentSetupId', ''),
-			('cPlanIds', ''),
-			('cUniquePlanIds', ''),
-			('cUniquePlanIdsWithCounty', ''),
-			('carrier', ''),
-			('coverageTier', ''),
-			('metal_type', ''),
-			('sortPlans', ''),
-			('showDental', 'false'),
-			('retainFilter', 'true'),
-			('formUID', formUID),
-			('CSRFToken', CSRFToken),
-			('zipCode', zipCode),
-			('includeHNYPlans', 'false'),
-			('enrollmentSetupId', ''),
-		]
-
-		response = requests.get(
+		# params = [
+		# 	('enrollmentSetupId', ''),
+		# 	('cPlanIds', ''),
+		# 	('cUniquePlanIds', ''),
+		# 	('cUniquePlanIdsWithCounty', ''),
+		# 	('carrier', ''),
+		# 	('coverageTier', ''),
+		# 	('metal_type', ''),
+		# 	('sortPlans', ''),
+		# 	('showDental', 'false'),
+		# 	('retainFilter', 'true'),
+		# 	('formUID', formUID),
+		# 	('CSRFToken', CSRFToken),
+		# 	('zipCode', zipCode),
+		# 	('includeHNYPlans', 'false'),
+		# 	('enrollmentSetupId', ''),
+		# ]
+		
+		response = session.get(
 			'https://nystateofhealth.ny.gov/employer/shop/search/plan/{}/{}/{}NEW%20YORK'.format(productID, planID, planID),
-			params=params,
+			# params=params,
 			headers=headers,
 		)
 
 
 	with open("plans/automated/" + marketplace + "_" + year + "_" + str(planID) + ".html", "wb") as file:
 		file.write(response.content)
-	
+
 # get the homepage
 session = requests.Session()
 
