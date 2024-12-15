@@ -59,8 +59,8 @@ def extractSBCData(path):
 	premium = None
 
 	# deductible
-	deductibleSection = rawStripped.split("What is the overall deductible?")[1].split("Are there services covered before")[0]
-	reduced = deductibleSection.split(" Out")[0]
+	section = rawStripped.split("What is the overall deductible?")[1].split("Are there services covered before")[0]
+	reduced = section.split(" Out")[0]
 	if ":" in reduced:
 		reduced = reduced.split(":")[1]
 	if "/" in reduced:
@@ -68,8 +68,8 @@ def extractSBCData(path):
 	deductible = getNumberFromString(reduced)
 
 	# out of pocket max
-	outOfPocketMaxSection = rawStripped.split("What is the out-of-pocket limit for this plan?")[1].split("The out-of-pocket limit is the most you could")[0]
-	reduced = outOfPocketMaxSection.split(" Out")[0]
+	section = rawStripped.split("What is the out-of-pocket limit for this plan?")[1].split("The out-of-pocket limit is the most you could")[0]
+	reduced = section.split(" Out")[0]
 	if ":" in reduced:
 		reduced = reduced.split(":")[1]
 	if "/" in reduced:
@@ -77,21 +77,43 @@ def extractSBCData(path):
 	outOfPocketMax = getNumberFromString(reduced)
 
 	# therapy 
-	therapySection = rawStripped.split("If you need mental health, behavioral health, or substance abuse services")[1].split("Office & other outpatient")[0].split("other outpatient services")[0]
-	therapyCostRaw = getNumberFromString(therapySection.replace("Outpatient services Office:", "").strip())
+	section = rawStripped.split("If you need mental health, behavioral health, or substance abuse services")[1].split("Office & other outpatient")[0].split("other outpatient services")[0]
+	therapyCostRaw = getNumberFromString(section.replace("Outpatient services Office:", "").strip())
 
 	# specialist 
-	specialistSection = rawStripped.split("Specialist visit ")[1].split("Office & other outpatient")[0].split("copay/visit")[0].split("copay/visit")[0].split("copay per visit")[0]
-	specialistCostRaw = getNumberFromString(specialistSection)
+	section = rawStripped.split("Specialist visit ")[1].split("Office & other outpatient")[0].split("copay/visit")[0].split("copay per visit")[0]
+	specialistCostRaw = getNumberFromString(section)
 
 	# primary care
-	primaryCareSection = rawStripped.split("Primary care visit to treat an injury or illness")[1].split("Virtual Primary Care telemedicine provider")[0].split("copay/visit")[0]
-	primaryCareCostRaw = getNumberFromString(primaryCareSection)
+	section = rawStripped.split("Primary care visit to treat an injury or illness")[1].split("Virtual Primary Care telemedicine provider")[0].split("copay/visit")[0]
+	primaryCareCostRaw = getNumberFromString(section)
 
 	# blood draw
-	bloodDrawSection = rawStripped.split("Diagnostic test (x-ray, blood work)")[1].split("Imaging ")[0]
-	bloodDrawRaw = bloodDrawSection.split(" coinsurance ")[0] + " coinsurance"
+	section = rawStripped.split("Diagnostic test (x-ray, blood work)")[1].split("Imaging ")[0]
+	bloodDrawRaw = section.split(" coinsurance ")[0] + " coinsurance"
 
+	# psychiatrist
+	psychiatristCostRaw = therapyCostRaw
+
+	# urgent care
+	section = rawStripped.split("Urgent care")[1].split("copay/visit")[0].split("copay per visit")[0]
+	urgentCareRaw = getNumberFromString(section)
+
+	# surgery facilities
+	section = rawStripped.split("Facility fee (e.g., ambulatory surgery center)")[1].split("copay/visit")[0].split(" coinsurance")[0]
+	if "%" in section:
+		surgeryFacilityRaw = getNumberFromString(section) + "% coinsurance"
+	else:
+		surgeryFacilityRaw = getNumberFromString(section)
+
+	# surgery services
+	section = rawStripped.split("Physician/surgeon fees")[1].split("copay/visit")[0].split(" coinsurance")[0]
+	if "%" in section:
+		surgeryServicesRaw = getNumberFromString(section) + "% coinsurance"
+	else:
+		surgeryServicesRaw = getNumberFromString(section)
+
+	# generic drugs
 	
 
 	return {
@@ -106,10 +128,10 @@ def extractSBCData(path):
 		"specialistCostRaw" : specialistCostRaw,
 		"primaryCareCostRaw" : primaryCareCostRaw,
 		"bloodDrawCostRaw" : bloodDrawRaw,
-		# "psychiatristCostRaw" : psychiatristCostRaw,
-		# "urgentCareCostRaw" : urgentCareRaw,
-		# "surgeryFacilitiesCostRaw" : surgeryFacilityRaw,
-		# "surgeryServicesCostRaw" : surgeryServicesRaw,
+		"psychiatristCostRaw" : psychiatristCostRaw,
+		"urgentCareCostRaw" : urgentCareRaw,
+		"surgeryFacilitiesCostRaw" : surgeryFacilityRaw,
+		"surgeryServicesCostRaw" : surgeryServicesRaw,
 		# "genericDrugsCostRaw" : genericDrugsRaw
 	}
 
