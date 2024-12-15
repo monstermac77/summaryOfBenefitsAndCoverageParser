@@ -80,6 +80,12 @@ def extractSBCData(path):
 	therapySection = rawStripped.split("If you need mental health, behavioral health, or substance abuse services")[1].split("Office & other outpatient")[0].split("other outpatient services")[0]
 	therapyCostRaw = getNumberFromString(therapySection.replace("Outpatient services Office:", "").strip())
 
+	# specialist 
+	specialistSection = rawStripped.split("Specialist visit ")[1].split("Office & other outpatient")[0].split("copay/visit")[0].split("copay/visit")[0].split("copay per visit")[0]
+	specialistCostRaw = getNumberFromString(specialistSection)
+	# print(specialistSection)
+
+
 	return {
 		"carrier" : carrier,
 		"plan" : plan,
@@ -89,7 +95,7 @@ def extractSBCData(path):
 		"deductible" : deductible,
 		"outOfPocketMax"  : outOfPocketMax,
 		"therapyCostRaw" : therapyCostRaw,
-		# "specialistCostRaw" : specialistCostRaw,
+		"specialistCostRaw" : specialistCostRaw,
 		# "primaryCareCostRaw" : primaryCareCostRaw,
 		# "bloodDrawCostRaw" : bloodDrawRaw,
 		# "psychiatristCostRaw" : psychiatristCostRaw,
