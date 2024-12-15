@@ -117,3 +117,35 @@ def printPlan(plan, source):
 	finalString = finalString.rstrip(", ")
 
 	print(finalString)
+
+
+# statically defined
+def getPremiumForPlan(identifier):
+	map = {
+		"2024-2025-aetna-justworks-medical-c3-sbc.pdf": "$530", 
+		"2024-2025-aetna-justworks-medical-b3-sbc.pdf": "$579", 
+		"2024-2025-aetna-justworks-medical-d1-sbc.pdf": "$449", 
+		"2024-2025-aetna-justworks-medical-h3-sbc.pdf": "$433", 
+		"2024-2025-aetna-justworks-medical-h2-sbc.pdf": "$416", 
+		"2024-2025-aetna-justworks-medical-g6-sbc.pdf": "$621", 
+		"2024-2025-aetna-justworks-medical-c2-sbc.pdf": "$530", 
+		"2024-2025-aetna-justworks-medical-g4-sbc.pdf": "$658", 
+		"2024-2025-aetna-justworks-medical-f4-sbc.pdf": "$638", 
+		"2024-2025-aetna-justworks-medical-d2-sbc.pdf": "$428", 
+		"2024-2025-aetna-justworks-medical-d3-sbc.pdf": "$447", 
+		"2024-2025-aetna-justworks-medical-h1-sbc.pdf": "$558", 
+		"2024-2025-aetna-justworks-medical-a7-sbc.pdf": "$560", 
+		"2024-2025-aetna-justworks-medical-g5-sbc.pdf": "$697", 
+		"2024-2025-aetna-justworks-medical-h4-sbc.pdf": "$420", 
+		"2024-2025-aetna-justworks-medical-b4-sbc.pdf": "$656", 
+		"2024-2025-aetna-justworks-medical-b5-sbc.pdf": "$525", 
+		"2024-2025-aetna-justworks-medical-c5-sbc.pdf": "$552", 
+		"2024-2025-aetna-justworks-medical-f1-sbc.pdf": "$766", 
+		"2024-2025-aetna-justworks-medical-g1-sbc.pdf": "$609", 
+		"2024-2025-aetna-justworks-medical-a8-sbc.pdf": "$531", 
+		"2024-2025-aetna-justworks-medical-j1-sbc.pdf": "$360", 
+		"2024-2025-aetna-justworks-medical-f3-sbc.pdf": "$670", 
+		"2024-2025-aetna-justworks-medical-f2-sbc.pdf": "$757", 
+		"2024-2025-aetna-justworks-medical-g2-sbc.pdf": "$481"
+	}
+	return map[identifier]

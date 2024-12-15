@@ -24,6 +24,7 @@ from shared import getCarrier
 from shared import cleanPlan
 from shared import processPlan
 from shared import printPlan
+from shared import getPremiumForPlan
 
 def replace_multiple_spaces(input_string):
     return re.sub(r'\s+', ' ', input_string).strip()
@@ -76,7 +77,8 @@ def extractSBCData(path):
 
 	# premium
 	# unfortunately this can't be gathered from the PDF, it's not on there, will have to be added manually
-	premium = None
+	# TODO: this would need to change if more were added
+	premium = getPremiumForPlan(path.split("/")[-1])
 
 	# deductible
 	section = rawStripped.split("What is the overall deductible?")[1].split("Are there services covered before")[0]
