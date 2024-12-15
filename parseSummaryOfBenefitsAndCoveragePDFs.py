@@ -140,10 +140,12 @@ def extractSBCData(path):
 	}
 
 for file in glob.glob(f"summaryOfBenefitsAndCoveragePDFs/*.pdf"):
-	print("Parsing {}...".format(file.split("/")[1]))
+	# print("Parsing {}...".format(file.split("/")[1]))
 	plan = extractSBCData(file)
-	pprint.pprint(plan)
+	#pprint.pprint(plan)
 	#continue
 	plan = cleanPlan(plan, "sbcPDF")
 	plan = processPlan(plan, "sbcPDF")
 	printPlan(plan, "sbcPDF")
+
+print("Copy and paste the above, paste it in the spreadsheet, then do a reset on the background color and on the text color, then with everything selected change it to field type money, then reduce the decimal places count.")
