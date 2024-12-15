@@ -44,6 +44,14 @@ def getMetalLevel(string):
 	elif "catastrophic" in string.lower():
 		return "Catastrophic"
 
+def parsePlan(rawStripped):
+	string = rawStripped.split("Summary of Benefits and Coverage: What this Plan Covers & What You Pay for Covered Services")[1].split("The Summary of Benefits and Coverage (SBC) document")[0]
+	if "Managed Choice®" in string:
+		string = string.split("Managed Choice®")[1]
+	string = string.strip().strip("-").strip()
+	return string
+
+
 def extractSBCData(path):
 	raw = parser.from_file(path)['content']
 	rawStripped = replace_multiple_spaces(raw.replace("\n", " "))
@@ -52,7 +60,7 @@ def extractSBCData(path):
 	carrier = getCarrier(rawStripped)
 
 	# plan
-	plan = rawStripped.split("Summary of Benefits and Coverage: What this Plan Covers & What You Pay for Covered Services")[1].split("The Summary of Benefits and Coverage (SBC) document")[0]
+	plan = parsePlan(rawStripped)
 
 	# level
 	metalLevel = getMetalLevel(rawStripped)
