@@ -83,8 +83,16 @@ def extractSBCData(path):
 	# specialist 
 	specialistSection = rawStripped.split("Specialist visit ")[1].split("Office & other outpatient")[0].split("copay/visit")[0].split("copay/visit")[0].split("copay per visit")[0]
 	specialistCostRaw = getNumberFromString(specialistSection)
-	# print(specialistSection)
 
+	# primary care
+	primaryCareSection = rawStripped.split("Primary care visit to treat an injury or illness")[1].split("Virtual Primary Care telemedicine provider")[0].split("copay/visit")[0]
+	primaryCareCostRaw = getNumberFromString(primaryCareSection)
+
+	# blood draw
+	bloodDrawSection = rawStripped.split("Diagnostic test (x-ray, blood work)")[1].split("Imaging ")[0]
+	bloodDrawRaw = bloodDrawSection.split(" coinsurance ")[0] + " coinsurance"
+
+	
 
 	return {
 		"carrier" : carrier,
@@ -96,8 +104,8 @@ def extractSBCData(path):
 		"outOfPocketMax"  : outOfPocketMax,
 		"therapyCostRaw" : therapyCostRaw,
 		"specialistCostRaw" : specialistCostRaw,
-		# "primaryCareCostRaw" : primaryCareCostRaw,
-		# "bloodDrawCostRaw" : bloodDrawRaw,
+		"primaryCareCostRaw" : primaryCareCostRaw,
+		"bloodDrawCostRaw" : bloodDrawRaw,
 		# "psychiatristCostRaw" : psychiatristCostRaw,
 		# "urgentCareCostRaw" : urgentCareRaw,
 		# "surgeryFacilitiesCostRaw" : surgeryFacilityRaw,
