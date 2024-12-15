@@ -67,6 +67,15 @@ def extractSBCData(path):
 		reduced = reduced.split("/")[0]
 	deductible = getNumberFromString(reduced)
 
+	# out of pocket max
+	outOfPocketMaxSection = rawStripped.split("What is the out-of-pocket limit for this plan?")[1].split("The out-of-pocket limit is the most you could")[0]
+	reduced = outOfPocketMaxSection.split(" Out")[0]
+	if ":" in reduced:
+		reduced = reduced.split(":")[1]
+	if "/" in reduced:
+		reduced = reduced.split("/")[0]
+	outOfPocketMax = getNumberFromString(reduced)
+
 	return {
 		"carrier" : carrier,
 		"plan" : plan,
@@ -74,7 +83,7 @@ def extractSBCData(path):
 		"level" : metalLevel,
 		"premium" : premium,
 		"deductible" : deductible,
-		# "outOfPocketMax"  : outOfPocketMax,
+		"outOfPocketMax"  : outOfPocketMax,
 		# "therapyCostRaw" : therapyCostRaw,
 		# "specialistCostRaw" : specialistCostRaw,
 		# "primaryCareCostRaw" : primaryCareCostRaw,
