@@ -66,6 +66,10 @@ def extractSBCData(path):
 	# plan
 	plan = parsePlan(rawStripped)
 
+	# link
+	# TODO: this would need to change if more were added
+	link = "https://secure.justworks.com/insurance_policy_document/summaries-of-benefits-coverage/" + path.split("/")[-1]
+
 	# level
 	metalLevel = getMetalLevel(rawStripped)
 
@@ -137,7 +141,7 @@ def extractSBCData(path):
 	return {
 		"carrier" : carrier,
 		"plan" : plan,
-		"link" : None,
+		"link" : link,
 		"level" : metalLevel,
 		"premium" : premium,
 		"deductible" : deductible,
