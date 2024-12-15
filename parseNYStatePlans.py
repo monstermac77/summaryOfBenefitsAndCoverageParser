@@ -8,6 +8,7 @@ import re
 from shared import getCarrier
 from shared import cleanPlan
 from shared import processPlan
+from shared import printPlan
 
 marketplace = "employer" # employer/individual
 year = "2025" # 2024
@@ -158,47 +159,6 @@ for plan in cleanPlans:
 
 # finally, for the printing:
 for plan in processedPlans:
-
-	# for when there's a full charge
-	fieldsToColumnsMap = {
-		"therapyCost" : "$BN$2",
-		"specialistCost" : "$BN$3",
-		"primaryCareCost" : "$BN$4",
-		"bloodDrawCost" : "$BN$5",
-		"psychiatristCost" : "$BN$6",
-		"urgentCareCost" : "$BN$7",
-		"surgeryFacilitiesCost" : "$BN$8",
-		"surgeryServicesCost" : "$BN$9",
-		"genericDrugsCost" : "$BN$10"
-	}
-
-	if marketplace == "employer":
-		finalString = '"SHOP NYS Marketplace", '
-	elif marketplace == "individual":
-		finalString = '"NYS Individual Marketplace", '
-
-	# to get them to print in a certain order, probably better way to do this
-	#pprint.pprint(plan)
-	for column in ["carrier", "plan", "link", "level", "premium", "deductible", "outOfPocketMax", "therapyCostBeforeDeductible", "therapyCostAfterDeductible", "specialistCostBeforeDeductible", "specialistCostAfterDeductible", "primaryCareCostBeforeDeductible", "primaryCareCostAfterDeductible", "bloodDrawCostBeforeDeductible", "bloodDrawCostAfterDeductible", "psychiatristCostBeforeDeductible", "psychiatristCostAfterDeductible", "urgentCareCostBeforeDeductible", "urgentCareCostAfterDeductible", "surgeryFacilitiesCostBeforeDeductible", "surgeryFacilitiesCostAfterDeductible", "surgeryServicesCostBeforeDeductible", "surgeryServicesCostAfterDeductible", "genericDrugsCostBeforeDeductible", "genericDrugsCostAfterDeductible"]:
-		value = plan[column]
-
-		chosenPair = None
-		for key, spreadsheetPair in fieldsToColumnsMap.items():
-			if column.startswith(key):
-				chosenPair = spreadsheetPair
-				break
-		#if column == "link":
-			# finalString += "=HYPERLINK(\"{}\")".format(value) + ", "
-		#	pass
-		if value == "FULL CHARGE": 
-			finalString += "=" + chosenPair + ", "
-		elif "PARTIAL CHARGE: " in value:
-			coinsurance = value.replace("PARTIAL CHARGE: ", "")
-			finalString += "={}*{}".format(chosenPair, coinsurance) + ", "
-		else:
-			finalString += '"{}", '.format(value)
-	finalString = finalString.rstrip(", ")
-
-	print(finalString)
+	printPlan(plan, marketplace)
 
 print("Copy and paste the above, paste it in the spreadsheet, then do a reset on the background color and on the text color, then with everything selected change it to field type money, then reduce the decimal places count.")
