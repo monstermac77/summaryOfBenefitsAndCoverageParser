@@ -31,6 +31,7 @@ def getCarrier(text):
 
 def cleanPlan(plan, dataSource):
 	for key, value in plan.items():
+		if value == None: continue
 		plan[key] = value.strip().replace("$", "")
 	return plan
 
@@ -89,10 +90,7 @@ def printPlan(plan, source):
 		"genericDrugsCost" : "$BN$10"
 	}
 
-	if source == "employer":
-		finalString = '"SHOP NYS Marketplace", '
-	elif source == "individual":
-		finalString = '"NYS Individual Marketplace", '
+	finalString = '"{}", '.format(source)
 
 	# to get them to print in a certain order, probably better way to do this
 	#pprint.pprint(plan)
@@ -107,7 +105,9 @@ def printPlan(plan, source):
 		#if column == "link":
 			# finalString += "=HYPERLINK(\"{}\")".format(value) + ", "
 		#	pass
-		if value == "FULL CHARGE": 
+		if value is None: 
+			finalString += "TODO, "
+		elif value == "FULL CHARGE": 
 			finalString += "=" + chosenPair + ", "
 		elif "PARTIAL CHARGE: " in value:
 			coinsurance = value.replace("PARTIAL CHARGE: ", "")

@@ -21,6 +21,9 @@ import re
 import glob
 import pprint
 from shared import getCarrier
+from shared import cleanPlan
+from shared import processPlan
+from shared import printPlan
 
 def replace_multiple_spaces(input_string):
     return re.sub(r'\s+', ' ', input_string).strip()
@@ -90,7 +93,7 @@ def extractSBCData(path):
 
 	# blood draw
 	section = rawStripped.split("Diagnostic test (x-ray, blood work)")[1].split("Imaging ")[0]
-	bloodDrawRaw = section.split(" coinsurance ")[0] + " coinsurance"
+	bloodDrawRaw = section.split(" coinsurance ")[0]
 
 	# psychiatrist
 	psychiatristCostRaw = therapyCostRaw
@@ -102,14 +105,14 @@ def extractSBCData(path):
 	# surgery facilities
 	section = rawStripped.split("Facility fee (e.g., ambulatory surgery center)")[1].split("copay/visit")[0].split(" coinsurance")[0]
 	if "%" in section:
-		surgeryFacilityRaw = getNumberFromString(section) + "% coinsurance"
+		surgeryFacilityRaw = getNumberFromString(section) + "%"
 	else:
 		surgeryFacilityRaw = getNumberFromString(section)
 
 	# surgery services
 	section = rawStripped.split("Physician/surgeon fees")[1].split("copay/visit")[0].split(" coinsurance")[0]
 	if "%" in section:
-		surgeryServicesRaw = getNumberFromString(section) + "% coinsurance"
+		surgeryServicesRaw = getNumberFromString(section) + "%"
 	else:
 		surgeryServicesRaw = getNumberFromString(section)
 
@@ -136,9 +139,11 @@ def extractSBCData(path):
 		"genericDrugsCostRaw" : genericDrugsRaw
 	}
 
-plans = []
 for file in glob.glob(f"summaryOfBenefitsAndCoveragePDFs/*.pdf"):
 	print("Parsing {}...".format(file.split("/")[1]))
 	plan = extractSBCData(file)
 	pprint.pprint(plan)
-	plans.append(plan)
+	#continue
+	plan = cleanPlan(plan, "sbcPDF")
+	plan = processPlan(plan, "sbcPDF")
+	printPlan(plan, "sbcPDF")

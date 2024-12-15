@@ -159,6 +159,10 @@ for plan in cleanPlans:
 
 # finally, for the printing:
 for plan in processedPlans:
-	printPlan(plan, marketplace)
+	if marketplace == "employer":
+		source = "SHOP NYS Marketplace"
+	elif marketplace == "individual":
+		source = "NYS Individual Marketplace"
+	printPlan(plan, source)
 
 print("Copy and paste the above, paste it in the spreadsheet, then do a reset on the background color and on the text color, then with everything selected change it to field type money, then reduce the decimal places count.")
