@@ -6,6 +6,8 @@ import pprint
 import glob
 import re
 from shared import getCarrier
+from shared import cleanPlan
+from shared import processPlan
 
 marketplace = "employer" # employer/individual
 year = "2025" # 2024
@@ -16,18 +18,6 @@ year = "2025" # 2024
 # TODO: could improve the gathering of the HTML for sure, probably automate it, but the javascript loading of the page makes it hard
 # it returns you to the fucking first page every time you click on one, so it makes sense to basically open 41 tabs I guess and click on the right one and then save?
 # Update: wrote the scraper, it wasn't horrible but needed to be different depending on whether it was the individual or SHOP marketplace
-
-def is_numerical(value):
-	
-	# remove dollar signs
-	value = value.replace("$", "")
-	
-	# Check if the cleaned string is a valid numeric string
-	try:
-		float(value)
-		return True
-	except ValueError:
-		return False
 
 def parseIndividualPlan(htmlPath):
 	
@@ -154,50 +144,16 @@ elif marketplace == "individual":
 
 
 # clean it up a bit
+cleanPlans = []
 for plan in plans:
 	if plan is None: continue # we logged this already, it's probably a dental plan
-	for key, value in plan.items():
-		plan[key] = value.strip().replace("$", "")
+	cleanPlans.append(cleanPlan(plan, "nyStateHTML"))
 
 # parse it out a bit
 processedPlans = []
-for plan in plans:
+for plan in cleanPlans:
 	if plan is None: continue # we logged this already, it's probably a dental plan
-	processedPlan = {}
-	for key, value in plan.items():
-		# print(key, value)
-		if "Raw" not in key:
-			# straightforward
-			processedPlan[key] = value
-		else:
-			costName = key.replace("Raw", "")
-			# if it's a numberical value, then it's very straightforward 
-			if is_numerical(value):
-				processedPlan[costName+"BeforeDeductible"] = processedPlan[costName+"AfterDeductible"] = value.strip()
-			else:
-				# there's some sort of difference or it's weird formatting
-				if "Copay after deductible" in value:
-					raw = value.replace("Copay after deductible", "")
-					processedPlan[costName+"BeforeDeductible"] = "FULL CHARGE"
-					processedPlan[costName+"AfterDeductible"] = raw.strip()
-				elif "Coinsurance after deductible" in value:
-					raw = value.replace("Coinsurance after deductible" , "")
-					processed = float(raw.strip().replace("%", "")) / 100
-					processedPlan[costName+"BeforeDeductible"] = "FULL CHARGE"
-					processedPlan[costName+"AfterDeductible"] = "PARTIAL CHARGE: {}".format(processed)
-				elif "No Charge after deductible" in value:
-					processedPlan[costName+"BeforeDeductible"] = "FULL CHARGE"
-					processedPlan[costName+"AfterDeductible"] = "0"
-				elif "No Charge" == value:
-					processedPlan[costName+"BeforeDeductible"] = "0"
-					processedPlan[costName+"AfterDeductible"] = "0"
-				elif "%" in value:
-					# it's just flat co-insurance
-					processed = float(value.strip().replace("%", "")) / 100
-					processedPlan[costName+"BeforeDeductible"] = "PARTIAL CHARGE: {}".format(processed)
-					processedPlan[costName+"AfterDeductible"] = "PARTIAL CHARGE: {}".format(processed)
-
-	# pprint.pprint(processedPlan)
+	processedPlan = processPlan(plan, "nyStateHTML")
 	processedPlans.append(processedPlan)
 
 # finally, for the printing:
