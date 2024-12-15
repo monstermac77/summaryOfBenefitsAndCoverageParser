@@ -114,7 +114,8 @@ def extractSBCData(path):
 		surgeryServicesRaw = getNumberFromString(section)
 
 	# generic drugs
-	
+	section = rawStripped.split("Preferred generic drugs")[1].split("(retail)")[0]
+	genericDrugsRaw = getNumberFromString(section)
 
 	return {
 		"carrier" : carrier,
@@ -132,7 +133,7 @@ def extractSBCData(path):
 		"urgentCareCostRaw" : urgentCareRaw,
 		"surgeryFacilitiesCostRaw" : surgeryFacilityRaw,
 		"surgeryServicesCostRaw" : surgeryServicesRaw,
-		# "genericDrugsCostRaw" : genericDrugsRaw
+		"genericDrugsCostRaw" : genericDrugsRaw
 	}
 
 plans = []
