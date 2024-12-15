@@ -63,7 +63,7 @@ def processPlan(plan, dataSource):
 				elif "No Charge after deductible" in value:
 					processedPlan[costName+"BeforeDeductible"] = "FULL CHARGE"
 					processedPlan[costName+"AfterDeductible"] = "0"
-				elif "No Charge" == value:
+				elif "no charge" in value.lower():
 					processedPlan[costName+"BeforeDeductible"] = "0"
 					processedPlan[costName+"AfterDeductible"] = "0"
 				elif "%" in value:

@@ -29,8 +29,12 @@ def replace_multiple_spaces(input_string):
     return re.sub(r'\s+', ' ', input_string).strip()
 
 def getNumberFromString(string):
-     string = string.replace(",", "")
-     return re.findall(r'\d+', string)[0]
+	try:
+		string = string.replace(",", "")
+		find = re.findall(r'\d+', string)[0]
+	except:
+		find = "9999"
+	return find
 
 def getMetalLevel(string):
 	if "platinum" in string.lower():
@@ -125,7 +129,9 @@ def extractSBCData(path):
 		surgeryServicesRaw = getNumberFromString(section)
 
 	# generic drugs
-	section = rawStripped.split("Preferred generic drugs")[1].split("(retail)")[0]
+	for keyword in ["Preferred generic drugs", "Generic drugs"]:
+		if keyword in rawStripped:
+			section = rawStripped.split(keyword)[1].split("(retail)")[0]
 	genericDrugsRaw = getNumberFromString(section)
 
 	return {
