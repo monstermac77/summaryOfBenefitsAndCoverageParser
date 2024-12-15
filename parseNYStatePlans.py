@@ -5,6 +5,7 @@ from lxml import etree
 import pprint
 import glob
 import re
+from shared import getCarrier
 
 marketplace = "employer" # employer/individual
 year = "2025" # 2024
@@ -15,23 +16,6 @@ year = "2025" # 2024
 # TODO: could improve the gathering of the HTML for sure, probably automate it, but the javascript loading of the page makes it hard
 # it returns you to the fucking first page every time you click on one, so it makes sense to basically open 41 tabs I guess and click on the right one and then save?
 # Update: wrote the scraper, it wasn't horrible but needed to be different depending on whether it was the individual or SHOP marketplace
-
-def getCarrier(html):
-	if "emblemhealth.com" in html:
-		return "Emblem Health"
-	elif "UnitedHealthcare.png" in html:
-		return "United Healthcare"
-	elif "anthem.com" in html:
-		return "Anthem"
-	elif "hioscar.com" in html:
-		return "Oscar"
-	elif "healthfirst.org" in html:
-		return "Healthfirst"
-	elif "fideliscare.org" in html:
-		return "Ambetter from Fidelis Care"
-	elif "metroplus.org" in html:
-		return "MetroPlusHealth"
-	return "Could not determine carrier"
 
 def is_numerical(value):
 	
