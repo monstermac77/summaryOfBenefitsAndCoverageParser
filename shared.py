@@ -46,12 +46,27 @@ def processPlan(plan, dataSource):
 			processedPlan[key] = value
 		else:
 			costName = key.replace("Raw", "")
+
+			# there are a number of plans where the copays and coinsurences listed are implicitly after the deductible
+			# these PDFs have "All copayment and coinsurance costs shown in this chart are after your deductible has been met, if a deductible applies."
+			# in them, so we could detect this probably, but doing so manually now
+			# TODO: would want this to be more general
+			if dataSource == "sbcPDF":
+				# so far all of these assume that the copays and coinsurences are after the deductible
+				if "%" in value:
+					value = value + " Coinsurance after deductible"
+				else: # "numberical" (lol)
+					value = value + " Copay after deductible"
+
 			# if it's a numberical value, then it's very straightforward 
 			if is_numerical(value):
 				processedPlan[costName+"BeforeDeductible"] = processedPlan[costName+"AfterDeductible"] = value.strip()
 			else:
 				# there's some sort of difference or it's weird formatting
-				if "Copay after deductible" in value:
+				if "no charge for laboratory" in value.lower():
+					processedPlan[costName+"BeforeDeductible"] = "0"
+					processedPlan[costName+"AfterDeductible"] = "0"
+				elif "Copay after deductible" in value:
 					raw = value.replace("Copay after deductible", "")
 					processedPlan[costName+"BeforeDeductible"] = "FULL CHARGE"
 					processedPlan[costName+"AfterDeductible"] = raw.strip()
