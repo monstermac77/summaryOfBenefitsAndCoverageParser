@@ -29,6 +29,7 @@ def replace_multiple_spaces(input_string):
     return re.sub(r'\s+', ' ', input_string).strip()
 
 def getNumberFromString(string):
+	# TODO: should figure these out, probably upstream issue
 	try:
 		string = string.replace(",", "")
 		find = re.findall(r'\d+', string)[0]
