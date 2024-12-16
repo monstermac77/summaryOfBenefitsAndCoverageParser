@@ -116,7 +116,6 @@ for service, startingDay in startingDayByService.items():
 
 # now for each plan, go day by day
 for plan in plans: 
-	pprint.pprint(plan)
 	plan["state"] = {
 		# "spentTowardDeductible" : 0,
 		# "coinsurancePaid" : 0, # can't distinguish with the data fed in
@@ -155,6 +154,9 @@ for plan in plans:
 			if justHitDeductible:
 				extraPrint = "DEDUCTIBLE HIT"
 				justHitDeductible = False
-			print(f"On day {day}", service, "rendered:", "individual paid", chargePreDeductible, "pre deductible and", chargePostDeductible, "post deductible. Now has spent", plan["state"]["spentOutOfPocket"], f"out of pocket. {extraPrint}")
+			# print(f"On day {day}", service, "rendered:", "individual paid", chargePreDeductible, "pre deductible and", chargePostDeductible, "post deductible. Now has spent", plan["state"]["spentOutOfPocket"], f"out of pocket. {extraPrint}")
 
-	exit()
+	plan["premiumTotal"] = plan["premium"] * 12
+	plan["totalCost"] = plan["premiumTotal"] + plan["state"]["spentOutOfPocket"]
+
+	print(f"{plan['company']}, {plan['plan'][:20]}: ${plan['totalCost']}")
