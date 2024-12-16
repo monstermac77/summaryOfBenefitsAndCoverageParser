@@ -6,7 +6,7 @@ import sys
 import argparse
 
 # generate all the arguments
-# python3 calculateExpectedCosts.py --therapyVisits 26 event --specialistVisits 6 random --primaryCareVisits 3 even --bloodDrawVisits 2 even --psychiatristVisits 4 even --urgentCareVisits 2 even --surgeries 1 random --prescriptionFills 12 even
+# python3 calculateExpectedCosts.py --therapyVisits 26 even --specialistVisits 6 random --primaryCareVisits 3 even --bloodDrawVisits 2 even --psychiatristVisits 4 even --urgentCareVisits 2 even --surgeries 1 random --prescriptionFills 12 even
 parser = argparse.ArgumentParser()
 parser.add_argument("--therapyVisits", help="the number of therapy sessions you expect to have in a given year", nargs=2, metavar=('therapies','therapiesDistro'))
 parser.add_argument("--specialistVisits", help="the number of specialist visits you expect to have in a given year", nargs=2, metavar=('specialists','specialistsDistro'))
@@ -29,6 +29,14 @@ if len(sys.argv) == 1:
 
 # actually parse out the args
 args = parser.parse_args()
+therapies, therapiesDistro = args.therapyVisits
+specialists, specialistsDistro = args.specialistVisits
+primaries, primariesDistro = args.primaryCareVisits
+bloodDraws, bloodDrawsDistro = args.bloodDrawVisits
+psychiatrists, psychiatristsDistro = args.psychiatristVisits
+urgentCares, urgentCaresDistro = args.urgentCareVisits
+surgeries, surgeriesDistro = args.surgeries
+prescriptions, prescriptionsDistro = args.prescriptionFills
 
 # note: we kind of want to keep the ratio relative to the expected cost of the services for coinsurance so that 
 # you can freely change those variables and recalculate without updating the spreadsheet
@@ -72,4 +80,17 @@ with open('processedData.csv', newline='') as csvfile:
 		for index, datum in enumerate(row):
 			plan[columnMap[index]] = datum
 		plans.append(plan)
+
+# now we want to find the interval for each of the services for the individual
+intervalByService = {
+	"therapies" : round(365 / args.therapyVisits)
+}
+
+days = {
+	index : [] for index in range(1, 366)
+}
+
+pprint.pprint(intervalByService)
+
+
 
