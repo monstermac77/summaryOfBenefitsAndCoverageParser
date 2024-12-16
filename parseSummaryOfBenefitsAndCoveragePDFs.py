@@ -25,6 +25,7 @@ from shared import cleanPlan
 from shared import processPlan
 from shared import printPlan
 from shared import getPremiumForPlan
+from shared import conditionallyApplyDeductibleLanguage
 
 def replace_multiple_spaces(input_string):
     return re.sub(r'\s+', ' ', input_string).strip()
@@ -114,9 +115,7 @@ def extractSBCData(path):
 	therapyCostRaw = section.replace("Outpatient services Office:", "").strip()
 	if "$" not in therapyCostRaw and "%" not in therapyCostRaw:
 		therapyCostRaw = "Unknown"
-
-	if "deductible doesn't apply" not in smallLookahead:
-		therapyCostRaw = therapyCostRaw + (" Coinsurance" if "%" in therapyCostRaw else " Copay") + " after deductible"
+	therapyCostRaw = conditionallyApplyDeductibleLanguage(therapyCostRaw, smallLookahead)
 	
 	# specialist 
 	section = rawStripped.split("Specialist visit ")[1].split("Office & other outpatient")[0]
@@ -124,24 +123,16 @@ def extractSBCData(path):
 	section = section.split("copay/visit")[0].split("copay per visit")[0]
 	if " " in section:
 		section = section.split(" ")[0]
-	specialistCostRaw = section
+	specialistCostRaw = conditionallyApplyDeductibleLanguage(section, smallLookahead)
 
-	if "deductible doesn't apply" not in smallLookahead:
-		specialistCostRaw = specialistCostRaw + (" Coinsurance" if "%" in specialistCostRaw else " Copay") + " after deductible"
-	
 	# primary care
 	section = rawStripped.split("Primary care visit to treat an injury or illness")[1].split("Virtual Primary Care telemedicine provider")[0]
 	smallLookahead = section[:70]
 	section = section.split("copay/visit")[0].strip()
 	if " " in section:
 		section = section.split(" ")[0]
-	primaryCareCostRaw = section
+	primaryCareCostRaw = conditionallyApplyDeductibleLanguage(section, smallLookahead)
 	
-	if "deductible doesn't apply" not in smallLookahead:
-		primaryCareCostRaw = primaryCareCostRaw + (" Coinsurance" if "%" in primaryCareCostRaw else " Copay") + " after deductible"
-	
-	print(path, primaryCareCostRaw)
-
 	# blood draw
 	section = rawStripped.split("Diagnostic test (x-ray, blood work)")[1].split("Imaging ")[0].strip()
 	if "No charge for laboratory" in section:

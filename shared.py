@@ -10,6 +10,11 @@ def is_numerical(value):
 	except ValueError:
 		return False
 
+def conditionallyApplyDeductibleLanguage(costSharingText, lookaheadText):
+	if "deductible doesn't apply" not in lookaheadText:
+		costSharingText = costSharingText + (" Coinsurance" if "%" in costSharingText else " Copay") + " after deductible"
+	return costSharingText
+
 def getCarrier(text):
 	if "emblemhealth.com" in text:
 		return "Emblem Health"
