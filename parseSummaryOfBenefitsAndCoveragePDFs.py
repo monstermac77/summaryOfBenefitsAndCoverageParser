@@ -121,7 +121,7 @@ def extractSBCData(path):
 	# specialist 
 	section = rawStripped.split("Specialist visit ")[1].split("Office & other outpatient")[0]
 	smallLookahead = section[:70]
-	reduced = section.split("copay/visit")[0].split("copay per visit")[0]
+	section = section.split("copay/visit")[0].split("copay per visit")[0]
 	if " " in section:
 		section = section.split(" ")[0]
 	specialistCostRaw = section
@@ -129,13 +129,18 @@ def extractSBCData(path):
 	if "deductible doesn't apply" not in smallLookahead:
 		specialistCostRaw = specialistCostRaw + (" Coinsurance" if "%" in specialistCostRaw else " Copay") + " after deductible"
 	
-	print(path, specialistCostRaw)
-
 	# primary care
-	section = rawStripped.split("Primary care visit to treat an injury or illness")[1].split("Virtual Primary Care telemedicine provider")[0].split("copay/visit")[0].strip()
+	section = rawStripped.split("Primary care visit to treat an injury or illness")[1].split("Virtual Primary Care telemedicine provider")[0]
+	smallLookahead = section[:70]
+	section = section.split("copay/visit")[0].strip()
 	if " " in section:
 		section = section.split(" ")[0]
-	primaryCareCostRaw = getNumberFromString(section)
+	primaryCareCostRaw = section
+	
+	if "deductible doesn't apply" not in smallLookahead:
+		primaryCareCostRaw = primaryCareCostRaw + (" Coinsurance" if "%" in primaryCareCostRaw else " Copay") + " after deductible"
+	
+	print(path, primaryCareCostRaw)
 
 	# blood draw
 	section = rawStripped.split("Diagnostic test (x-ray, blood work)")[1].split("Imaging ")[0].strip()
