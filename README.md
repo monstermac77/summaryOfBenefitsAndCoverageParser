@@ -1,4 +1,4 @@
-There are simply too many variables involved with choosing a healthcare plan. About 80% of Americans get their health insurance through their employer, but the rest are left uninsured or must enroll through the national marketplace (Healthcare.gov) or a state marketplace (if one exists). 
+There are simply too many variables involved with choosing a healthcare plan. About 80% of Americans get their health insurance through their employer, but the rest are left uninsured or must enroll through the national marketplace (Healthcare.gov) or their state's marketplace (if it exists). 
 
 In the first case, individuals may only have a couple plans to choose from, but in the second case there are often hundreds of plans to choose from. But in both cases it's important to make a data-driven decision based on your expected utilization of your healthcare plan. 
 
