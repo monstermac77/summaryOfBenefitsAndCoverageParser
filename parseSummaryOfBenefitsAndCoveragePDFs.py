@@ -135,11 +135,16 @@ def extractSBCData(path):
 	
 	# blood draw
 	section = rawStripped.split("Diagnostic test (x-ray, blood work)")[1].split("Imaging ")[0].strip()
+	smallLookahead = section[:70]
 	if "No charge for laboratory" in section:
-		section = "$0"
-	elif " " in section:
-		section = section.split(" ")[0]
-	bloodDrawRaw = section.split(" coinsurance ")[0]
+		bloodDrawRaw = "$0"
+	else:
+		if " " in section:
+			section = section.split(" ")[0]
+		bloodDrawRaw = section.split(" coinsurance ")[0]
+		bloodDrawRaw = conditionallyApplyDeductibleLanguage(bloodDrawRaw, smallLookahead)
+	
+	print(path, bloodDrawRaw)
 
 	# psychiatrist
 	psychiatristCostRaw = therapyCostRaw
@@ -193,14 +198,15 @@ def extractSBCData(path):
 		"genericDrugsCostRaw" : genericDrugsRaw
 	}
 
-for file in glob.glob(f"summaryOfBenefitsAndCoveragePDFs/*.pdf"):
-	# print("Parsing {}...".format(file.split("/")[1]))
-	plan = extractSBCData(file)
-	#pprint.pprint(plan)
-	#pprint.pprint(plan)
-	#continue
-	plan = cleanPlan(plan, "sbcPDF")
-	plan = processPlan(plan, "sbcPDF")
-	#printPlan(plan, "sbcPDF")
+for folder in ["public", "confidential"]:
+	for file in glob.glob(f"summaryOfBenefitsAndCoveragePDFs/{folder}/*.pdf"):
+		# print("Parsing {}...".format(file.split("/")[1]))
+		plan = extractSBCData(file)
+		#pprint.pprint(plan)
+		#pprint.pprint(plan)
+		#continue
+		plan = cleanPlan(plan, "sbcPDF")
+		plan = processPlan(plan, "sbcPDF")
+		#printPlan(plan, "sbcPDF")
 
 print("Copy and paste the above, paste it in the spreadsheet, then do a reset on the background color and on the text color, then with everything selected change it to field type money, then reduce the decimal places count.")
