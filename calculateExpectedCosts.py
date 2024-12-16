@@ -133,8 +133,8 @@ for plan in plans:
 			# because that'll affect how the calculations work out, but we're going to accept that as a shortcoming for now
 			if plan["state"]["spentOutOfPocket"] < plan["deductible"]:
 				# does this push us over? 
-				if plan[service+"CostBeforeDeductible"] + plan["state"]["spentOutOfPocket"] >= plan["deductible"]:
-					chargePreDeductible = (plan[service+"CostBeforeDeductible"] + plan["state"]["spentOutOfPocket"]) - plan["deductible"]
+				if plan[service+"CostBeforeDeductible"] + plan["state"]["spentOutOfPocket"] > plan["deductible"]:
+					chargePreDeductible = abs(plan["state"]["spentOutOfPocket"] - plan["deductible"])
 					# for a big charge though, you're not going to be charged the entire amount if it gets you above your deductible
 					if chargePreDeductible > plan["deductible"]:
 						chargePreDeductible = min(chargePreDeductible, plan["deductible"])
