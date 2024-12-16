@@ -118,16 +118,38 @@ for service, startingDay in startingDayByService.items():
 for plan in plans: 
 	pprint.pprint(plan)
 	plan["state"] = {
-		"spentTowardDeductible" : 0,
-		"coinsurancePaid" : 0,
-		"copaysPaid" : 0,
-		"totalOutOfPocket" : 0
+		# "spentTowardDeductible" : 0,
+		# "coinsurancePaid" : 0, # can't distinguish with the data fed in
+		# "copaysPaid" : 0, # can't distinguish with the data fed in
+		"spentOutOfPocket" : 0
 	}
 	for day, services in servicesByDay.items():
 		for service in services: 	
 
 			# figure out if we should use predeductible, postdeductible,
 			# or blend (if this is the service that pushes us over)
-			difference = (plan[service+"CostBeforeDeductible"])
-			print(difference)
-			pass
+			# note: this is technically incorrect, we really need to know whether it's a coinsurence or a copay for these
+			# because that'll affect how the calculations work out, but we're going to accept that as a shortcoming for now
+			if plan["state"]["spentOutOfPocket"] < plan["deductible"]:
+				print("yes below")
+				# does this push us over? 
+				if plan[service+"CostBeforeDeductible"] + plan["state"]["spentOutOfPocket"] >= plan["deductible"]:
+					chargePreDeductible = plan[service+"CostBeforeDeductible"] + plan["state"]["spentOutOfPocket"] - plan["deductible"]
+					# for a big charge though, you're not going to be charged the entire amount if it gets you above your deductible
+					chargePreDeductible = min(chargePreDeductible, plan["deductible"])
+					chargePostDeductible = max(plan[service+"CostAfterDeductible"] - chargePreDeductible, 0) # not sure on this, it could just be the entire cost after deductible but unlikely
+				else:
+					# if it doesn't, it's simple
+					chargePreDeductible = plan[service+"CostBeforeDeductible"]
+					chargePostDeductible = 0
+			else:
+				# we already met the deductible
+				chargePreDeductible = 0
+				chargePostDeductible = plan[service+"CostAfterDeductible"]
+			
+			# now we know the total charge for the service
+			plan["state"]["spentOutOfPocket"] += (chargePreDeductible + chargePostDeductible)
+
+			print(service, "rendered:", "individual paid", chargePreDeductible, "pre deductible and", chargePostDeductible, "post deductible. Now has spent", plan["state"]["spentOutOfPocket"], "out of pocket.")
+
+	exit()
