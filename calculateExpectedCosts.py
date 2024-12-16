@@ -1,6 +1,8 @@
 import pprint
 import csv
 import sys
+import random
+
 
 # argument related
 import argparse
@@ -29,14 +31,14 @@ if len(sys.argv) == 1:
 
 # actually parse out the args
 args = parser.parse_args()
-therapies, therapiesDistro = args.therapyVisits
-specialists, specialistsDistro = args.specialistVisits
-primaries, primariesDistro = args.primaryCareVisits
-bloodDraws, bloodDrawsDistro = args.bloodDrawVisits
-psychiatrists, psychiatristsDistro = args.psychiatristVisits
-urgentCares, urgentCaresDistro = args.urgentCareVisits
-surgeries, surgeriesDistro = args.surgeries
-prescriptions, prescriptionsDistro = args.prescriptionFills
+therapies, therapiesDistro = int(args.therapyVisits[0]), args.therapyVisits[0]
+specialists, specialistsDistro = int(args.specialistVisits[0]), args.specialistVisits
+primaries, primariesDistro = int(args.primaryCareVisits[0]), args.primaryCareVisits
+bloodDraws, bloodDrawsDistro = int(args.bloodDrawVisits[0]), args.bloodDrawVisits
+psychiatrists, psychiatristsDistro = int(args.psychiatristVisits[0]), args.psychiatristVisits
+urgentCares, urgentCaresDistro = int(args.urgentCareVisits[0]), args.urgentCareVisits
+surgeries, surgeriesDistro = int(args.surgeries[0]), args.surgeries
+prescriptions, prescriptionsDistro = int(args.prescriptionFills[0]), args.prescriptionFills
 
 # note: we kind of want to keep the ratio relative to the expected cost of the services for coinsurance so that 
 # you can freely change those variables and recalculate without updating the spreadsheet
@@ -83,14 +85,33 @@ with open('processedData.csv', newline='') as csvfile:
 
 # now we want to find the interval for each of the services for the individual
 intervalByService = {
-	"therapies" : round(365 / args.therapyVisits)
+	"therapies" : round(365 / therapies),
+	"specialists" : round(365 / specialists),
+	"primaries" : round(365 / primaries),
+	"bloodDraws" : round(365 / bloodDraws),
+	"psychiatrists" : round(365 / psychiatrists),
+	"urgentCare" : round(365 / urgentCares),
+	"surgeries" : round(365 / surgeries),
+	"prescriptions" : round(365 / prescriptions),
 }
 
-days = {
+startingDayByService = {
+	service : random.randint(1, interval) for service, interval in intervalByService.items()
+}
+
+servicesByDay = {
 	index : [] for index in range(1, 366)
 }
 
-pprint.pprint(intervalByService)
+# now fill in the services by day
+for service, startingDay in startingDayByService.items():
+	currentDay = startingDay
+	while currentDay <= 365:
+		servicesByDay[currentDay].append(service)
+		currentDay += intervalByService[service]
+
+
+pprint.pprint(servicesByDay)
 
 
 
