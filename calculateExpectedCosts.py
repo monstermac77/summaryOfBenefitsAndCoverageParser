@@ -1,5 +1,29 @@
 import pprint
 import csv
+import sys
+
+# argument related
+import argparse
+
+# generate all the arguments
+# python3 calculateExpectedCosts.py --therapyVisits 26 --specialistVisits 6 --primaryCareVisits 3 --bloodDrawVisits 2 --psychiatristVisits 4 --urgentCareVisits 2 --surgeries 1 --prescriptionFills 12
+parser = argparse.ArgumentParser()
+parser.add_argument("--therapyVisits", help="the number of therapy sessions you expect to have in a given year", metavar='therapies')
+parser.add_argument("--specialistVisits", help="the number of specialist visits you expect to have in a given year", metavar='specialists')
+parser.add_argument("--primaryCareVisits", help="the number of primary care visits you expect to have in a given year", metavar='primaries')
+parser.add_argument("--bloodDrawVisits", help="the number of blood draws you expect to have in a given year", metavar='bloods')
+parser.add_argument("--psychiatristVisits", help="the number of psychiatrist visits you expect to have in a given year", metavar='psychiatrists')
+parser.add_argument("--urgentCareVisits", help="the number of urgent care visits you expect to have in a given year", metavar='urgentCares')
+parser.add_argument("--surgeries", help="the number of surgeries you expect to have in a given year", metavar='surgeries')
+parser.add_argument("--prescriptionFills", help="the number of prescription fills you expect to have in a given year", metavar='prescriptions')
+
+# if the developer didn't specify what to run, give them some help
+if len(sys.argv) == 1:
+	parser.print_help(sys.stderr)
+	sys.exit(1)
+
+# actually parse out the args
+args = parser.parse_args()
 
 # note: we kind of want to keep the ratio relative to the expected cost of the services for coinsurance so that 
 # you can freely change those variables and recalculate without updating the spreadsheet
