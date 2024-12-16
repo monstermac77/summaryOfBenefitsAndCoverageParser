@@ -123,6 +123,7 @@ for plan in plans:
 		# "copaysPaid" : 0, # can't distinguish with the data fed in
 		"spentOutOfPocket" : 0
 	}
+	justHitDeductible = False
 	for day, services in servicesByDay.items():
 		for service in services: 	
 
@@ -131,13 +132,14 @@ for plan in plans:
 			# note: this is technically incorrect, we really need to know whether it's a coinsurence or a copay for these
 			# because that'll affect how the calculations work out, but we're going to accept that as a shortcoming for now
 			if plan["state"]["spentOutOfPocket"] < plan["deductible"]:
-				print("yes below")
 				# does this push us over? 
 				if plan[service+"CostBeforeDeductible"] + plan["state"]["spentOutOfPocket"] >= plan["deductible"]:
-					chargePreDeductible = plan[service+"CostBeforeDeductible"] + plan["state"]["spentOutOfPocket"] - plan["deductible"]
+					chargePreDeductible = (plan[service+"CostBeforeDeductible"] + plan["state"]["spentOutOfPocket"]) - plan["deductible"]
 					# for a big charge though, you're not going to be charged the entire amount if it gets you above your deductible
-					chargePreDeductible = min(chargePreDeductible, plan["deductible"])
+					if chargePreDeductible > plan["deductible"]:
+						chargePreDeductible = min(chargePreDeductible, plan["deductible"])
 					chargePostDeductible = max(plan[service+"CostAfterDeductible"] - chargePreDeductible, 0) # not sure on this, it could just be the entire cost after deductible but unlikely
+					justHitDeductible = True
 				else:
 					# if it doesn't, it's simple
 					chargePreDeductible = plan[service+"CostBeforeDeductible"]
@@ -149,7 +151,10 @@ for plan in plans:
 			
 			# now we know the total charge for the service
 			plan["state"]["spentOutOfPocket"] += (chargePreDeductible + chargePostDeductible)
-
-			print(service, "rendered:", "individual paid", chargePreDeductible, "pre deductible and", chargePostDeductible, "post deductible. Now has spent", plan["state"]["spentOutOfPocket"], "out of pocket.")
+			extraPrint = ""
+			if justHitDeductible:
+				extraPrint = "DEDUCTIBLE HIT"
+				justHitDeductible = False
+			print(f"On day {day}", service, "rendered:", "individual paid", chargePreDeductible, "pre deductible and", chargePostDeductible, "post deductible. Now has spent", plan["state"]["spentOutOfPocket"], f"out of pocket. {extraPrint}")
 
 	exit()
