@@ -144,40 +144,44 @@ def extractSBCData(path):
 		bloodDrawRaw = section.split(" coinsurance ")[0]
 		bloodDrawRaw = conditionallyApplyDeductibleLanguage(bloodDrawRaw, smallLookahead)
 	
-	print(path, bloodDrawRaw)
-
 	# psychiatrist
 	psychiatristCostRaw = therapyCostRaw
 
 	# urgent care
-	section = rawStripped.split("Urgent care")[1].split("copay/visit")[0].split("copay per visit")[0].strip()
+	section = rawStripped.split("Urgent care")[1]
+	smallLookahead = section[:70]
+	section = section.split("copay/visit")[0].split("copay per visit")[0].strip()
 	if " " in section:
 		section = section.split(" ")[0]
-	urgentCareRaw = getNumberFromString(section)
+	urgentCareRaw = conditionallyApplyDeductibleLanguage(section, smallLookahead)
 
 	# surgery facilities
-	section = rawStripped.split("Facility fee (e.g., ambulatory surgery center)")[1].split("copay/visit")[0].split(" coinsurance")[0].strip()
+	section = rawStripped.split("Facility fee (e.g., ambulatory surgery center)")[1]
+	smallLookahead = section[:70]
+	section = section.split("copay/visit")[0].split(" coinsurance")[0].strip()
 	if " " in section:
 		section = section.split(" ")[0]
-	if "%" in section:
-		surgeryFacilityRaw = getNumberFromString(section) + "%"
-	else:
-		surgeryFacilityRaw = getNumberFromString(section)
+	surgeryFacilityRaw = conditionallyApplyDeductibleLanguage(section, smallLookahead)
 
 	# surgery services
-	section = rawStripped.split("Physician/surgeon fees")[1].split("copay/visit")[0].split(" coinsurance")[0].strip()
+	section = rawStripped.split("Physician/surgeon fees")[1]
+	smallLookahead = section[:70]
+	section = section.split("copay/visit")[0].split(" coinsurance")[0].strip()
 	if " " in section:
 		section = section.split(" ")[0]
-	if "%" in section:
-		surgeryServicesRaw = getNumberFromString(section) + "%"
-	else:
-		surgeryServicesRaw = getNumberFromString(section)
+	surgeryServicesRaw = conditionallyApplyDeductibleLanguage(section, smallLookahead)
 
 	# generic drugs
 	for keyword in ["Preferred generic drugs", "Generic drugs"]:
 		if keyword in rawStripped:
-			section = rawStripped.split(keyword)[1].split("(retail)")[0]
-	genericDrugsRaw = getNumberFromString(section)
+			section = rawStripped.split(keyword)[1]
+			smallLookahead = section[:70]
+			section = section.split("(retail)")[0].replace("Copay/prescription", "").split(" coinsurance")[0].split("Copay")[0]
+	genericDrugsRaw = conditionallyApplyDeductibleLanguage(section, smallLookahead)
+	addition = ""
+	if "%" in genericDrugsRaw:
+		addition = "%"
+	genericDrugsRaw = getNumberFromString(genericDrugsRaw) + addition
 
 	return {
 		"carrier" : carrier,
@@ -207,6 +211,6 @@ for folder in ["public", "confidential"]:
 		#continue
 		plan = cleanPlan(plan, "sbcPDF")
 		plan = processPlan(plan, "sbcPDF")
-		#printPlan(plan, "sbcPDF")
+		printPlan(plan, "sbcPDF")
 
 print("Copy and paste the above, paste it in the spreadsheet, then do a reset on the background color and on the text color, then with everything selected change it to field type money, then reduce the decimal places count.")
