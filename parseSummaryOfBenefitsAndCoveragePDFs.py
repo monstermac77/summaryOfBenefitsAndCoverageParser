@@ -99,10 +99,12 @@ def extractSBCData(path):
 	outOfPocketMax = getNumberFromString(reduced)
 
 	# note: need to handle deductible does not apply for these 
+	defaultIsPostDeductible = ("All copayment and coinsurance costs shown in this chart are after your deductible has been met, if a deductible applies." in rawStripped)
 	
-
 	# therapy 
 	section = rawStripped.split("If you need mental health, behavioral health, or substance abuse services")[1].replace(" Outpatient services Office: ", "").strip()
+	smallLookahead = section[:100]
+		
 	if " " in section:
 		section = section.split(" ")[0]
 	if section == "Outpatient":
@@ -113,6 +115,9 @@ def extractSBCData(path):
 	if "$" not in therapyCostRaw and "%" not in therapyCostRaw:
 		therapyCostRaw = "Unknown"
 
+	if "deductible doesn't apply" not in smallLookahead:
+		therapyCostRaw = therapyCostRaw + (" Coinsurance" if "%" in therapyCostRaw else " Copay") + " after deductible"
+	
 	# specialist 
 	section = rawStripped.split("Specialist visit ")[1].split("Office & other outpatient")[0].split("copay/visit")[0].split("copay per visit")[0]
 	if " " in section:
@@ -188,11 +193,11 @@ def extractSBCData(path):
 for file in glob.glob(f"summaryOfBenefitsAndCoveragePDFs/*.pdf"):
 	# print("Parsing {}...".format(file.split("/")[1]))
 	plan = extractSBCData(file)
-	pprint.pprint(plan)
+	#pprint.pprint(plan)
 	#pprint.pprint(plan)
 	#continue
 	plan = cleanPlan(plan, "sbcPDF")
 	plan = processPlan(plan, "sbcPDF")
-	printPlan(plan, "sbcPDF")
+	#printPlan(plan, "sbcPDF")
 
 print("Copy and paste the above, paste it in the spreadsheet, then do a reset on the background color and on the text color, then with everything selected change it to field type money, then reduce the decimal places count.")
