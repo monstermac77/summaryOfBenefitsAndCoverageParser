@@ -119,10 +119,17 @@ def extractSBCData(path):
 		therapyCostRaw = therapyCostRaw + (" Coinsurance" if "%" in therapyCostRaw else " Copay") + " after deductible"
 	
 	# specialist 
-	section = rawStripped.split("Specialist visit ")[1].split("Office & other outpatient")[0].split("copay/visit")[0].split("copay per visit")[0]
+	section = rawStripped.split("Specialist visit ")[1].split("Office & other outpatient")[0]
+	smallLookahead = section[:70]
+	reduced = section.split("copay/visit")[0].split("copay per visit")[0]
 	if " " in section:
 		section = section.split(" ")[0]
-	specialistCostRaw = getNumberFromString(section)
+	specialistCostRaw = section
+
+	if "deductible doesn't apply" not in smallLookahead:
+		specialistCostRaw = specialistCostRaw + (" Coinsurance" if "%" in specialistCostRaw else " Copay") + " after deductible"
+	
+	print(path, specialistCostRaw)
 
 	# primary care
 	section = rawStripped.split("Primary care visit to treat an injury or illness")[1].split("Virtual Primary Care telemedicine provider")[0].split("copay/visit")[0].strip()
