@@ -57,8 +57,8 @@ columnMap = {
 	11 : "specialistsCostAfterDeductible",
 	12 : "primariesCostBeforeDeductible",
 	13 : "primariesCostAfterDeductible",
-	14 : "bloodsDrawsCostBeforeDeductible",
-	15 : "bloodsDrawsCostAfterDeductible",
+	14 : "bloodDrawsCostBeforeDeductible",
+	15 : "bloodDrawsCostAfterDeductible",
 	16 : "psychiatristsCostBeforeDeductible",
 	17 : "psychiatristsCostAfterDeductible",
 	18 : "urgentCaresCostBeforeDeductible",
@@ -80,7 +80,7 @@ with open('processedData.csv', newline='') as csvfile:
 	for row in reader:
 		plan = {}
 		for index, datum in enumerate(row):
-			plan[columnMap[index]] = datum
+			plan[columnMap[index]] = int(datum.replace("$", "").replace(",", "")) if "$" in datum  else datum
 		plans.append(plan)
 
 # now we want to find the interval for each of the services for the individual
@@ -90,7 +90,7 @@ intervalByService = {
 	"primaries" : round(365 / primaries),
 	"bloodDraws" : round(365 / bloodDraws),
 	"psychiatrists" : round(365 / psychiatrists),
-	"urgentCare" : round(365 / urgentCares),
+	"urgentCares" : round(365 / urgentCares),
 	"surgeries" : round(365 / surgeries),
 	"prescriptions" : round(365 / prescriptions),
 }
@@ -107,11 +107,27 @@ servicesByDay = {
 for service, startingDay in startingDayByService.items():
 	currentDay = startingDay
 	while currentDay <= 365:
-		servicesByDay[currentDay].append(service)
+		# certain things are kind of grouped, like surgeries
+		if service == "surgeries":
+			servicesByDay[currentDay].extend(["surgeryFacility", "surgeryServices"])
+		else:	
+			servicesByDay[currentDay].append(service)
 		currentDay += intervalByService[service]
 
+# now for each plan, go day by day
+for plan in plans: 
+	pprint.pprint(plan)
+	plan["state"] = {
+		"spentTowardDeductible" : 0,
+		"coinsurancePaid" : 0,
+		"copaysPaid" : 0,
+		"totalOutOfPocket" : 0
+	}
+	for day, services in servicesByDay.items():
+		for service in services: 	
 
-pprint.pprint(servicesByDay)
-
-
-
+			# figure out if we should use predeductible, postdeductible,
+			# or blend (if this is the service that pushes us over)
+			difference = (plan[service+"CostBeforeDeductible"])
+			print(difference)
+			pass
