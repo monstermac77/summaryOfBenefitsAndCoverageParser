@@ -226,6 +226,8 @@ for key in totalsAcrossSimulations:
 	totalsAcrossSimulations[key]["averageTaxAdjustedCost"] = roundedAverage(totals["totalCostTaxAdjusted"])
 	totalsAcrossSimulations[key]["averageCoursicleCostTotal"] = roundedAverage(totals["coursicleCostTotal"])
 	totalsAcrossSimulations[key]["averageEmployeeCostTotal"] = roundedAverage(totals["employeeCostTotal"])
+	totalsAcrossSimulations[key]["averageEmployeePremiumTotal"] = roundedAverage(totals["employeePremiumTotal"])
+	totalsAcrossSimulations[key]["averageEmployeeCopayTotal"] = roundedAverage(totals["employeeCopayTotal"])
 
 # sort them 
 sortedPlans = dict(sorted(totalsAcrossSimulations.items(), key=lambda item: item[1]['averageTaxAdjustedCost']))
@@ -235,7 +237,9 @@ for planKey in sortedPlans:
 	print("		Premium:", "${}/month".format(totalsAcrossSimulations[planKey]["plan"]["premium"]))
 	print("		Deductible:", "${}".format(totalsAcrossSimulations[planKey]["plan"]["deductible"]))
 	print("		Out of pocket max:", "${}".format(totalsAcrossSimulations[planKey]["plan"]["outOfPocketMax"]))
-	print("		Therapy after deductible:", "${}".format(totalsAcrossSimulations[planKey]["plan"]["therapiesCostAfterDeductible"]))
+	print("		Employee cost (premium):", "${}/month".format(int(totalsAcrossSimulations[planKey]["averageEmployeePremiumTotal"] / 12)))
+	print("		Estimated copays/coinsurance:", "${}/month".format(int(totalsAcrossSimulations[planKey]["averageEmployeeCopayTotal"] / 12)))
+	print("			Therapy after deductible:", "${}".format(totalsAcrossSimulations[planKey]["plan"]["therapiesCostAfterDeductible"]))
 
 sortedPlans = dict(sorted(totalsAcrossSimulations.items(), key=lambda item: item[1]['averageEmployeeCostTotal']))
 print("Plans by cheapest for employee:")
@@ -244,7 +248,9 @@ for planKey in sortedPlans:
 	print("		Premium:", "${}/month".format(totalsAcrossSimulations[planKey]["plan"]["premium"]))
 	print("		Deductible:", "${}".format(totalsAcrossSimulations[planKey]["plan"]["deductible"]))
 	print("		Out of pocket max:", "${}".format(totalsAcrossSimulations[planKey]["plan"]["outOfPocketMax"]))
-	print("		Therapy after deductible:", "${}".format(totalsAcrossSimulations[planKey]["plan"]["therapiesCostAfterDeductible"]))
+	print("		Employee cost (premium):", "${}/month".format(int(totalsAcrossSimulations[planKey]["averageEmployeePremiumTotal"] / 12)))
+	print("		Estimated copays/coinsurance:", "${}/month".format(int(totalsAcrossSimulations[planKey]["averageEmployeeCopayTotal"] / 12)))
+	print("			Therapy after deductible:", "${}".format(totalsAcrossSimulations[planKey]["plan"]["therapiesCostAfterDeductible"]))
 
 sortedPlans = dict(sorted(totalsAcrossSimulations.items(), key=lambda item: item[1]['averageCoursicleCostTotal']))
 print("Plans by cheapest for Coursicle:")
@@ -253,4 +259,6 @@ for planKey in sortedPlans:
 	print("		Premium:", "${}/month".format(totalsAcrossSimulations[planKey]["plan"]["premium"]))
 	print("		Deductible:", "${}".format(totalsAcrossSimulations[planKey]["plan"]["deductible"]))
 	print("		Out of pocket max:", "${}".format(totalsAcrossSimulations[planKey]["plan"]["outOfPocketMax"]))
-	print("		Therapy after deductible:", "${}".format(totalsAcrossSimulations[planKey]["plan"]["therapiesCostAfterDeductible"]))
+	print("		Employee cost (premium):", "${}/month".format(int(totalsAcrossSimulations[planKey]["averageEmployeePremiumTotal"] / 12)))
+	print("		Estimated copays/coinsurance:", "${}/month".format(int(totalsAcrossSimulations[planKey]["averageEmployeeCopayTotal"] / 12)))
+	print("			Therapy after deductible:", "${}".format(totalsAcrossSimulations[planKey]["plan"]["therapiesCostAfterDeductible"]))
