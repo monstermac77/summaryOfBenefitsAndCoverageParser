@@ -229,14 +229,14 @@ for key in totalsAcrossSimulations:
 sortedPlans = dict(sorted(totalsAcrossSimulations.items(), key=lambda item: item[1]['averageTaxAdjustedCost']))
 print("Plans by cheapest for employee + Coursicle (balanced):")
 for planKey in sortedPlans:
-	print("${}".format(totalsAcrossSimulations[planKey]["averageTaxAdjustedCost"]), planKey)
+	print("	${}".format(totalsAcrossSimulations[planKey]["averageTaxAdjustedCost"]), planKey)
 
 sortedPlans = dict(sorted(totalsAcrossSimulations.items(), key=lambda item: item[1]['averageEmployeeCostTotal']))
 print("Plans by cheapest for employee:")
 for planKey in sortedPlans:
-	print("${}".format(totalsAcrossSimulations[planKey]["averageEmployeeCostTotal"]), planKey)
+	print("	${}".format(totalsAcrossSimulations[planKey]["averageEmployeeCostTotal"]), planKey)
 
 sortedPlans = dict(sorted(totalsAcrossSimulations.items(), key=lambda item: item[1]['averageCoursicleCostTotal']))
 print("Plans by cheapest for Coursicle:")
 for planKey in sortedPlans:
-	print("${}".format(totalsAcrossSimulations[planKey]["averageCoursicleCostTotal"]), planKey)
+	print("	${}".format(totalsAcrossSimulations[planKey]["averageCoursicleCostTotal"]), planKey)
