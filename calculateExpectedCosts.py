@@ -31,6 +31,9 @@ if len(sys.argv) == 1:
 	parser.print_help(sys.stderr)
 	sys.exit(1)
 
+def roundedAverage(numbers):
+	return int(sum(numbers)/len(numbers))
+
 # actually parse out the args
 args = parser.parse_args()
 therapies, therapiesDistro = int(args.therapyVisits[0]), args.therapyVisits[0]
@@ -174,6 +177,7 @@ def simulate():
 			"employeePremiumTotal" : [],
 			"employeeCopayTotal" : [],
 			"coursicleCostTotal" : [],
+			"employeeCostTotal" : [],
 			"totalCost" : [],
 			"totalCostTaxAdjusted" : [],
 		}
@@ -196,6 +200,10 @@ def simulate():
 			int(yearlyPremium * (100 - int(args.costShare)) / 100)
 		)
 
+		totalsAcrossSimulations[key]["employeeCostTotal"].append(
+			int(yearlyPremium * (int(args.costShare) / 100)) + plan["state"]["spentOutOfPocket"]
+		)
+
 		totalsAcrossSimulations[key]["totalCost"].append(
 			yearlyPremium + plan["state"]["spentOutOfPocket"]
 		)
@@ -204,9 +212,31 @@ def simulate():
 			int(yearlyPremium + 1/(1-0.24) * plan["state"]["spentOutOfPocket"])
 		)
 
+		
+
+
 for i in range(0, int(args.simulations)):
 	simulate()
 
+# calculate averages
 for key in totalsAcrossSimulations:
-	print(key)
-	print("		", totalsAcrossSimulations[key])
+	totals = totalsAcrossSimulations[key]
+	totalsAcrossSimulations[key]["averageTaxAdjustedCost"] = roundedAverage(totals["totalCostTaxAdjusted"])
+	totalsAcrossSimulations[key]["averageCoursicleCostTotal"] = roundedAverage(totals["coursicleCostTotal"])
+	totalsAcrossSimulations[key]["averageEmployeeCostTotal"] = roundedAverage(totals["employeeCostTotal"])
+
+# sort them 
+sortedPlans = dict(sorted(totalsAcrossSimulations.items(), key=lambda item: item[1]['averageTaxAdjustedCost']))
+print("Plans by cheapest for employee + Coursicle (balanced):")
+for planKey in sortedPlans:
+	print("${}".format(totalsAcrossSimulations[planKey]["averageTaxAdjustedCost"]), planKey)
+
+sortedPlans = dict(sorted(totalsAcrossSimulations.items(), key=lambda item: item[1]['averageEmployeeCostTotal']))
+print("Plans by cheapest for employee:")
+for planKey in sortedPlans:
+	print("${}".format(totalsAcrossSimulations[planKey]["averageEmployeeCostTotal"]), planKey)
+
+sortedPlans = dict(sorted(totalsAcrossSimulations.items(), key=lambda item: item[1]['averageCoursicleCostTotal']))
+print("Plans by cheapest for Coursicle:")
+for planKey in sortedPlans:
+	print("${}".format(totalsAcrossSimulations[planKey]["averageCoursicleCostTotal"]), planKey)
