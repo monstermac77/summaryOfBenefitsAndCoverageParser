@@ -10,6 +10,7 @@ import argparse
 # generate all the arguments
 # python3 calculateExpectedCosts.py --therapyVisits 26 even --specialistVisits 6 random --primaryCareVisits 3 even --bloodDrawVisits 2 even --psychiatristVisits 4 even --urgentCareVisits 2 even --surgeries 1 random --prescriptionFills 12 even
 parser = argparse.ArgumentParser()
+parser.add_argument("simulations", help="the number of times you want to simulate the plans, the more simulations the more accurate the estimate", metavar='simulations')
 parser.add_argument("--therapyVisits", help="the number of therapy sessions you expect to have in a given year", nargs=2, metavar=('therapies','therapiesDistro'))
 parser.add_argument("--specialistVisits", help="the number of specialist visits you expect to have in a given year", nargs=2, metavar=('specialists','specialistsDistro'))
 parser.add_argument("--primaryCareVisits", help="the number of primary care visits you expect to have in a given year", nargs=2, metavar=('primaries','primariesDistro'))
@@ -95,68 +96,84 @@ intervalByService = {
 	"prescriptions" : round(365 / prescriptions),
 }
 
-startingDayByService = {
-	service : random.randint(1, interval) for service, interval in intervalByService.items()
+totalsAcrossSimulations = {
 }
 
-servicesByDay = {
-	index : [] for index in range(1, 366)
-}
+def simulate():
 
-# now fill in the services by day
-for service, startingDay in startingDayByService.items():
-	currentDay = startingDay
-	while currentDay <= 365:
-		# certain things are kind of grouped, like surgeries
-		if service == "surgeries":
-			servicesByDay[currentDay].extend(["surgeryFacility", "surgeryServices"])
-		else:	
-			servicesByDay[currentDay].append(service)
-		currentDay += intervalByService[service]
-
-# now for each plan, go day by day
-for plan in plans: 
-	plan["state"] = {
-		# "spentTowardDeductible" : 0,
-		# "coinsurancePaid" : 0, # can't distinguish with the data fed in
-		# "copaysPaid" : 0, # can't distinguish with the data fed in
-		"spentOutOfPocket" : 0
+	startingDayByService = {
+		service : random.randint(1, interval) for service, interval in intervalByService.items()
 	}
-	justHitDeductible = False
-	for day, services in servicesByDay.items():
-		for service in services: 	
 
-			# figure out if we should use predeductible, postdeductible,
-			# or blend (if this is the service that pushes us over)
-			# note: this is technically incorrect, we really need to know whether it's a coinsurence or a copay for these
-			# because that'll affect how the calculations work out, but we're going to accept that as a shortcoming for now
-			if plan["state"]["spentOutOfPocket"] < plan["deductible"]:
-				# does this push us over? 
-				if plan[service+"CostBeforeDeductible"] + plan["state"]["spentOutOfPocket"] > plan["deductible"]:
-					chargePreDeductible = abs(plan["state"]["spentOutOfPocket"] - plan["deductible"])
-					# for a big charge though, you're not going to be charged the entire amount if it gets you above your deductible
-					if chargePreDeductible > plan["deductible"]:
-						chargePreDeductible = min(chargePreDeductible, plan["deductible"])
-					chargePostDeductible = max(plan[service+"CostAfterDeductible"] - chargePreDeductible, 0) # not sure on this, it could just be the entire cost after deductible but unlikely
-					justHitDeductible = True
+	servicesByDay = {
+		index : [] for index in range(1, 366)
+	}
+
+	# now fill in the services by day
+	for service, startingDay in startingDayByService.items():
+		currentDay = startingDay
+		while currentDay <= 365:
+			# certain things are kind of grouped, like surgeries
+			if service == "surgeries":
+				servicesByDay[currentDay].extend(["surgeryFacility", "surgeryServices"])
+			else:	
+				servicesByDay[currentDay].append(service)
+			currentDay += intervalByService[service]
+
+
+	# now for each plan, go day by day
+	for plan in plans: 
+
+		# let's ignore everything except Aetna for now
+		if plan["company"] != "Aetna": continue
+
+		plan["state"] = {
+			# "spentTowardDeductible" : 0,
+			# "coinsurancePaid" : 0, # can't distinguish with the data fed in
+			# "copaysPaid" : 0, # can't distinguish with the data fed in
+			"spentOutOfPocket" : 0
+		}
+		justHitDeductible = False
+		for day, services in servicesByDay.items():
+			for service in services: 	
+
+				# figure out if we should use predeductible, postdeductible,
+				# or blend (if this is the service that pushes us over)
+				# note: this is technically incorrect, we really need to know whether it's a coinsurence or a copay for these
+				# because that'll affect how the calculations work out, but we're going to accept that as a shortcoming for now
+				if plan["state"]["spentOutOfPocket"] < plan["deductible"]:
+					# does this push us over? 
+					if plan[service+"CostBeforeDeductible"] + plan["state"]["spentOutOfPocket"] > plan["deductible"]:
+						chargePreDeductible = abs(plan["state"]["spentOutOfPocket"] - plan["deductible"])
+						# for a big charge though, you're not going to be charged the entire amount if it gets you above your deductible
+						if chargePreDeductible > plan["deductible"]:
+							chargePreDeductible = min(chargePreDeductible, plan["deductible"])
+						chargePostDeductible = max(plan[service+"CostAfterDeductible"] - chargePreDeductible, 0) # not sure on this, it could just be the entire cost after deductible but unlikely
+						justHitDeductible = True
+					else:
+						# if it doesn't, it's simple
+						chargePreDeductible = plan[service+"CostBeforeDeductible"]
+						chargePostDeductible = 0
 				else:
-					# if it doesn't, it's simple
-					chargePreDeductible = plan[service+"CostBeforeDeductible"]
-					chargePostDeductible = 0
-			else:
-				# we already met the deductible
-				chargePreDeductible = 0
-				chargePostDeductible = plan[service+"CostAfterDeductible"]
-			
-			# now we know the total charge for the service
-			plan["state"]["spentOutOfPocket"] += (chargePreDeductible + chargePostDeductible)
-			extraPrint = ""
-			if justHitDeductible:
-				extraPrint = "DEDUCTIBLE HIT"
-				justHitDeductible = False
-			# print(f"On day {day}", service, "rendered:", "individual paid", chargePreDeductible, "pre deductible and", chargePostDeductible, "post deductible. Now has spent", plan["state"]["spentOutOfPocket"], f"out of pocket. {extraPrint}")
+					# we already met the deductible
+					chargePreDeductible = 0
+					chargePostDeductible = plan[service+"CostAfterDeductible"]
+				
+				# now we know the total charge for the service
+				plan["state"]["spentOutOfPocket"] += (chargePreDeductible + chargePostDeductible)
+				extraPrint = ""
+				if justHitDeductible:
+					extraPrint = "DEDUCTIBLE HIT"
+					justHitDeductible = False
+				# print(f"On day {day}", service, "rendered:", "individual paid", chargePreDeductible, "pre deductible and", chargePostDeductible, "post deductible. Now has spent", plan["state"]["spentOutOfPocket"], f"out of pocket. {extraPrint}")
 
-	plan["premiumTotal"] = plan["premium"] * 12
-	plan["totalCost"] = plan["premiumTotal"] + plan["state"]["spentOutOfPocket"]
+		plan["premiumTotal"] = plan["premium"] * 12
+		plan["totalCost"] = plan["premiumTotal"] + plan["state"]["spentOutOfPocket"]
 
-	print(f"{plan['company']}, {plan['plan'][:20]}: ${plan['totalCost']}")
+		key = plan['company'] + " " + plan['plan']
+		if key not in totalsAcrossSimulations: totalsAcrossSimulations[key] = []
+		totalsAcrossSimulations[key].append(plan['totalCost'])
+
+for i in range(0, int(args.simulations)):
+	simulate()
+print(totalsAcrossSimulations)
