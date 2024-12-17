@@ -176,4 +176,7 @@ def simulate():
 
 for i in range(0, int(args.simulations)):
 	simulate()
-print(totalsAcrossSimulations)
+
+for key in totalsAcrossSimulations:
+	print(key)
+	print("		", totalsAcrossSimulations[key])
