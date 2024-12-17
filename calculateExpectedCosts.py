@@ -11,6 +11,7 @@ import argparse
 # python3 calculateExpectedCosts.py --therapyVisits 26 even --specialistVisits 6 random --primaryCareVisits 3 even --bloodDrawVisits 2 even --psychiatristVisits 4 even --urgentCareVisits 2 even --surgeries 1 random --prescriptionFills 12 even
 parser = argparse.ArgumentParser()
 parser.add_argument("simulations", help="the number of times you want to simulate the plans, the more simulations the more accurate the estimate", metavar='simulations')
+parser.add_argument("costShare", help="the percent that you want the employee to pay", metavar='costShare')
 parser.add_argument("--therapyVisits", help="the number of therapy sessions you expect to have in a given year", nargs=2, metavar=('therapies','therapiesDistro'))
 parser.add_argument("--specialistVisits", help="the number of specialist visits you expect to have in a given year", nargs=2, metavar=('specialists','specialistsDistro'))
 parser.add_argument("--primaryCareVisits", help="the number of primary care visits you expect to have in a given year", nargs=2, metavar=('primaries','primariesDistro'))
@@ -167,12 +168,41 @@ def simulate():
 					justHitDeductible = False
 				# print(f"On day {day}", service, "rendered:", "individual paid", chargePreDeductible, "pre deductible and", chargePostDeductible, "post deductible. Now has spent", plan["state"]["spentOutOfPocket"], f"out of pocket. {extraPrint}")
 
-		plan["premiumTotal"] = plan["premium"] * 12
-		plan["totalCost"] = plan["premiumTotal"] + plan["state"]["spentOutOfPocket"]
-
 		key = plan['company'] + " " + plan['plan']
-		if key not in totalsAcrossSimulations: totalsAcrossSimulations[key] = []
-		totalsAcrossSimulations[key].append(plan['totalCost'])
+		if key not in totalsAcrossSimulations: totalsAcrossSimulations[key] = {
+			"totalPremiums" : [],
+			"employeePremiumTotal" : [],
+			"employeeCopayTotal" : [],
+			"coursicleCostTotal" : [],
+			"totalCost" : [],
+			"totalCostTaxAdjusted" : [],
+		}
+			
+		yearlyPremium = plan["premium"] * 12
+
+		totalsAcrossSimulations[key]["totalPremiums"].append(
+			yearlyPremium
+		)
+
+		totalsAcrossSimulations[key]["employeePremiumTotal"].append(
+			int(yearlyPremium * (int(args.costShare) / 100))
+		)
+
+		totalsAcrossSimulations[key]["employeeCopayTotal"].append(
+			plan["state"]["spentOutOfPocket"]
+		)
+
+		totalsAcrossSimulations[key]["coursicleCostTotal"].append(
+			int(yearlyPremium * (100 - int(args.costShare)) / 100)
+		)
+
+		totalsAcrossSimulations[key]["totalCost"].append(
+			yearlyPremium + plan["state"]["spentOutOfPocket"]
+		)
+
+		totalsAcrossSimulations[key]["totalCostTaxAdjusted"].append(
+			int(yearlyPremium + 1/(1-0.24) * plan["state"]["spentOutOfPocket"])
+		)
 
 for i in range(0, int(args.simulations)):
 	simulate()
