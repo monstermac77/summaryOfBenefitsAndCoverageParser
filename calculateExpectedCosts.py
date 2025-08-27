@@ -86,6 +86,7 @@ with open('processedData.csv', newline='') as csvfile:
 		plan = {}
 		for index, datum in enumerate(row):
 			plan[columnMap[index]] = int(datum.replace("$", "").replace(",", "")) if "$" in datum  else datum
+			if plan[columnMap[index]] == "No": plan[columnMap[index]] = 0
 		plans.append(plan)
 
 # now we want to find the interval for each of the services for the individual
@@ -96,7 +97,8 @@ intervalByService = {
 	"bloodDraws" : round(365 / bloodDraws),
 	"psychiatrists" : round(365 / psychiatrists),
 	"urgentCares" : round(365 / urgentCares),
-	"surgeries" : round(365 / surgeries),
+	# "surgeries" : round(365 / surgeries), (not sure why this was replaced with the below)
+	"surgeries" : 0,
 	"prescriptions" : round(365 / prescriptions),
 }
 
@@ -106,7 +108,7 @@ totalsAcrossSimulations = {
 def simulate():
 
 	startingDayByService = {
-		service : random.randint(1, interval) for service, interval in intervalByService.items()
+		service : random.randint(1, interval) for service, interval in intervalByService.items() if interval != 0
 	}
 
 	servicesByDay = {
@@ -130,6 +132,10 @@ def simulate():
 
 		# let's ignore everything except Aetna for now
 		if plan["company"] != "Aetna": continue
+
+		# if there's no premium listed, we skip it
+		# not sure why Justworks has this, should ask
+		if plan["premium"] == "N/A": continue
 
 		plan["state"] = {
 			# "spentTowardDeductible" : 0,

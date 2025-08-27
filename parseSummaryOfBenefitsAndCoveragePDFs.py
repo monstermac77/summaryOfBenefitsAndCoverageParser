@@ -213,4 +213,8 @@ for folder in ["public", "confidential"]:
 		plan = processPlan(plan, "sbcPDF")
 		printPlan(plan, "sbcPDF")
 
-print("Copy and paste the above, paste it in the spreadsheet, then do a reset on the background color and on the text color, then with everything selected change it to field type money, then reduce the decimal places count.")
+print("Duplicate the Health Insurance Options spreadsheet from last year. Copy the above. Save the above as a CSV on your desktop. Delete the existing data from the google sheet copy, keep the headers. Select row 2. Do an import on Google sheets and select Append to current sheet. then do a reset on the background color and on the text color (if needed), then with everything selected change it to field type money, then reduce the decimal places count. Then go to column BL in the new sheet and copy all of the variables from the old sheet from BL into the new sheet so that these are defined and all of the values can be calculated.")
+print("Once you have all of these worked out, you can skip to the calculateExpectedCosts because you have all the raw data you need in the sheet. If you want to get the Master sheet all nice like we had it in 2025, go ahead, but the calculate expected costs is sufficient we believe.")
+print("To do this, copy everything in the Master sheet up to generic drug cost after deductible, and then paste it in the master for export sheet but paste values only, so that it's just raw values no formulas.")
+print("Rename the old processedData.csv file as processedData[year].csv, and then download the new data you just made as processedData.csv and put it in the folder.")
+print("Be sure to delete everything after the generic drug cost after deductible header, inlcuding the headers and any empty columns for all the rows, there are likely some depending on how you did the export, we only want filled in rows and non blank columns.")

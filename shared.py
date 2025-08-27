@@ -155,6 +155,33 @@ def getPremiumForPlan(identifier):
 		"2024-2025-aetna-justworks-medical-j1-sbc.pdf": "$360", 
 		"2024-2025-aetna-justworks-medical-f3-sbc.pdf": "$670", 
 		"2024-2025-aetna-justworks-medical-f2-sbc.pdf": "$757", 
-		"2024-2025-aetna-justworks-medical-g2-sbc.pdf": "$481"
+		"2024-2025-aetna-justworks-medical-g2-sbc.pdf": "$481",
+
+		# https://chatgpt.com/c/68ae939a-b3b4-8325-a6a7-fdc14a9096f9 (private link to gpt convo on Joe's account)
+		"2025-2026-aetna-justworks-medical-c3-sbc.pdf": "N/A",
+		"2025-2026-aetna-justworks-medical-f1-sbc.pdf": "N/A",
+		"2025-2026-aetna-justworks-medical-f3-sbc.pdf": "N/A",
+		"2025-2026-aetna-justworks-medical-g1-sbc.pdf": "N/A",
+		"2025-2026-aetna-justworks-medical-g2-sbc.pdf": "N/A",
+		"2025-2026-aetna-justworks-medical-h3-sbc.pdf": "N/A",
+		"2025-2026-aetna-justworks-medical-a8-sbc.pdf": "$574.05",
+		"2025-2026-aetna-justworks-medical-b3-sbc.pdf": "$668.72",
+		"2025-2026-aetna-justworks-medical-b4-sbc.pdf": "$720.39",
+		"2025-2026-aetna-justworks-medical-b5-sbc.pdf": "$581.36",
+		"2025-2026-aetna-justworks-medical-c2-sbc.pdf": "$606.11",
+		"2025-2026-aetna-justworks-medical-c5-sbc.pdf": "$599.60",
+		"2025-2026-aetna-justworks-medical-d1-sbc.pdf": "$517.67",
+		"2025-2026-aetna-justworks-medical-d2-sbc.pdf": "$473.23",
+		"2025-2026-aetna-justworks-medical-d3-sbc.pdf": "$511.30",
+		"2025-2026-aetna-justworks-medical-f2-sbc.pdf": "$839.16",
+		"2025-2026-aetna-justworks-medical-f4-sbc.pdf": "$683.99",
+		"2025-2026-aetna-justworks-medical-g4-sbc.pdf": "$721.91",
+		"2025-2026-aetna-justworks-medical-g5-sbc.pdf": "$748.33",
+		"2025-2026-aetna-justworks-medical-g6-sbc.pdf": "$661.84",
+		"2025-2026-aetna-justworks-medical-h1-sbc.pdf": "$612.26",
+		"2025-2026-aetna-justworks-medical-h2-sbc.pdf": "$460.86",
+		"2025-2026-aetna-justworks-medical-j1-sbc.pdf": "$397.46",
+		"2025-2026-aetna-justworks-medical-k1-sbc.pdf": "$1,043.19",
+		"2025-2026-aetna-justworks-medical-k2-sbc.pdf": "$678.71"
 	}
 	return map[identifier]
