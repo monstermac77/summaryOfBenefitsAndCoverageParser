@@ -36,14 +36,14 @@ def roundedAverage(numbers):
 
 # actually parse out the args
 args = parser.parse_args()
-therapies, therapiesDistro = int(args.therapyVisits[0]), args.therapyVisits[0]
-specialists, specialistsDistro = int(args.specialistVisits[0]), args.specialistVisits
-primaries, primariesDistro = int(args.primaryCareVisits[0]), args.primaryCareVisits
-bloodDraws, bloodDrawsDistro = int(args.bloodDrawVisits[0]), args.bloodDrawVisits
-psychiatrists, psychiatristsDistro = int(args.psychiatristVisits[0]), args.psychiatristVisits
-urgentCares, urgentCaresDistro = int(args.urgentCareVisits[0]), args.urgentCareVisits
-surgeries, surgeriesDistro = int(args.surgeries[0]), args.surgeries
-prescriptions, prescriptionsDistro = int(args.prescriptionFills[0]), args.prescriptionFills
+therapies, therapiesDistro = int(args.therapyVisits[0]), args.therapyVisits[1]
+specialists, specialistsDistro = int(args.specialistVisits[0]), args.specialistVisits[1]
+primaries, primariesDistro = int(args.primaryCareVisits[0]), args.primaryCareVisits[1]
+bloodDraws, bloodDrawsDistro = int(args.bloodDrawVisits[0]), args.bloodDrawVisits[1]
+psychiatrists, psychiatristsDistro = int(args.psychiatristVisits[0]), args.psychiatristVisits[1]
+urgentCares, urgentCaresDistro = int(args.urgentCareVisits[0]), args.urgentCareVisits[1]
+surgeries, surgeriesDistro = int(args.surgeries[0]), args.surgeries[1]
+prescriptions, prescriptionsDistro = int(args.prescriptionFills[0]), args.prescriptionFills[1]
 
 # note: we kind of want to keep the ratio relative to the expected cost of the services for coinsurance so that 
 # you can freely change those variables and recalculate without updating the spreadsheet
@@ -91,15 +91,14 @@ with open('processedData.csv', newline='') as csvfile:
 
 # now we want to find the interval for each of the services for the individual
 intervalByService = {
-	"therapies" : round(365 / therapies),
-	"specialists" : round(365 / specialists),
-	"primaries" : round(365 / primaries),
-	"bloodDraws" : round(365 / bloodDraws),
-	"psychiatrists" : round(365 / psychiatrists),
-	"urgentCares" : round(365 / urgentCares),
-	# "surgeries" : round(365 / surgeries), (not sure why this was replaced with the below)
-	"surgeries" : 0,
-	"prescriptions" : round(365 / prescriptions),
+	"therapies" : round(365 / therapies) if therapies > 0 else 0,
+	"specialists" : round(365 / specialists) if specialists > 0 else 0,
+	"primaries" : round(365 / primaries) if primaries > 0 else 0,
+	"bloodDraws" : round(365 / bloodDraws) if bloodDraws > 0 else 0,
+	"psychiatrists" : round(365 / psychiatrists) if psychiatrists > 0 else 0,
+	"urgentCares" : round(365 / urgentCares) if urgentCares > 0 else 0,
+	"surgeries" : round(365 / surgeries) if surgeries > 0 else 0,
+	"prescriptions" : round(365 / prescriptions) if prescriptions > 0 else 0,
 }
 
 totalsAcrossSimulations = {
